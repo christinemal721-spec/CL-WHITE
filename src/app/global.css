@@ -1,0 +1,84 @@
+:root {
+  --message-list-max-width: 840px;
+  --message-list-padding-horizontal: 44px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --message-list-max-width: 712px;
+    --message-list-padding-horizontal: 36px;
+  }
+}
+
+body {
+  overflow: hidden;
+  margin: 0;
+  word-break: break-word;
+  font-family: var(--dsw-font-family);
+  font-size: var(--ds-font-size-m);
+  color: var(--dsw-alias-label-primary);
+  background-color: var(--dsw-alias-bg-base);
+  -webkit-text-size-adjust: none;
+  -webkit-tap-highlight-color: transparent;
+  font-feature-settings: 'kern';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --scroll-color: rgba(0, 0, 0, 0.08);
+  --scroll-color-hover: rgba(0, 0, 0, 0.15);
+}
+
+body.dark {
+  color-scheme: dark;
+}
+
+body[data-ds-dark-theme] {
+  --scroll-color: rgba(255, 255, 255, 0.15);
+  --scroll-color-hover: rgba(255, 255, 255, 0.24);
+}
+
+body.change-theme *,
+body.change-theme *::before,
+body.change-theme *::after {
+  transition: none !important;
+}
+
+@media not all and (min-width: 768px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top);
+    box-sizing: border-box;
+  }
+}
+
+/*
+ * 按压回弹：所有按钮按下时轻轻缩一下，松开弹回。
+ * 组件里自定义了 :active transform 的按钮（如「回到底部」）以组件样式为准。
+ */
+button,
+[role='button'] {
+  transition-property: transform, background-color, color, border-color, box-shadow, opacity;
+  transition-duration: 0.18s;
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+button:not(:disabled):not([aria-disabled='true']):active,
+[role='button']:not([aria-disabled='true']):active {
+  transform: scale(0.94);
+  transition-duration: 0.08s;
+  transition-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active,
+  [role='button']:active {
+    transform: none;
+  }
+}

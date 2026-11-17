@@ -1,0 +1,27 @@
+declare const styles: {
+  readonly "page": string;
+  readonly "open": string;
+  readonly "fade": string;
+  readonly "inner": string;
+  readonly "header": string;
+  readonly "back": string;
+  readonly "dock": string;
+  readonly "idle": string;
+  readonly "hint": string;
+  readonly "field": string;
+  readonly "fieldIcon": string;
+  readonly "input": string;
+  readonly "clear": string;
+  readonly "body": string;
+  readonly "status": string;
+  readonly "count": string;
+  readonly "result": string;
+  readonly "resultHead": string;
+  readonly "resultTitle": string;
+  readonly "resultDate": string;
+  readonly "resultSnippet": string;
+  readonly "mark": string;
+  readonly "instant": string;
+  readonly "more": string;
+};
+export = styles;

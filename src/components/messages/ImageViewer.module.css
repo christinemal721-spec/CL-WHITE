@@ -1,0 +1,113 @@
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(246, 247, 251, 0.86);
+  -webkit-backdrop-filter: blur(22px) saturate(1.1);
+  backdrop-filter: blur(22px) saturate(1.1);
+  animation: viewer-in 0.22s ease both;
+}
+
+:global(body[data-ds-dark-theme]) .viewer {
+  background: rgba(8, 10, 16, 0.86);
+}
+
+.viewer[data-closing] {
+  animation: viewer-out 0.18s ease both;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  box-sizing: border-box;
+  padding: calc(56px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.picture {
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--white-accent) 22%, transparent),
+    0 18px 60px rgba(0, 0, 0, 0.35),
+    0 0 40px var(--white-glow);
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: default;
+  animation: viewer-pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.viewer[data-closing] .picture {
+  animation: viewer-pop-out 0.18s ease both;
+}
+
+/* 放大：按原图两倍屏宽展开，可上下左右拖动查看 */
+.stage[data-zoomed] .picture {
+  flex-shrink: 0;
+  width: 220%;
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+  animation: none;
+}
+
+.close {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0 0 2px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white-glass);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--white-accent) 28%, transparent);
+  color: var(--white-icon);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes viewer-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes viewer-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes viewer-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewer,
+  .picture {
+    animation-duration: 0.01s;
+  }
+}

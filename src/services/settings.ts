@@ -1,0 +1,209 @@
+import { create } from 'zustand'
+import type { TtsVoice } from './api/speech.js'
+import { CHAT_MODELS, type ChatModel } from './api/types.js'
+import { normalizeLocation, type UserLocation } from './location.js'
+
+export type Locale = 'zh-CN' | 'en-US'
+
+/** 主题偏好；默认跟随系统 */
+export type ThemePreference = 'light' | 'dark' | 'system'
+
+/** 正文字体大小 */
+export type FontSize = 'xsmall' | 'small' | 'standard' | 'large' | 'xlarge'
+
+const FONT_SIZES: FontSize[] = ['xsmall', 'small', 'standard', 'large', 'xlarge']
+
+/** 本机设置，存 localStorage：API Key、语言、主题、位置、朗读音色、深度思考与智能搜索开关、侧边栏收起状态 */
+type Settings = {
+  apiKey: string | null
+  /** 对话用的 Claude 模型 */
+  model: ChatModel
+  locale: Locale
+  themePreference: ThemePreference
+  location: UserLocation | null
+  ttsVoice: TtsVoice
+  fontSize: FontSize
+  soundEffects: boolean
+  autoCollapseThinking: boolean
+  autoCompact: boolean
+  autoBackup: boolean
+  thinking: boolean
+  search: boolean
+  siderCollapsed: boolean
+}
+
+const KEYS = {
+  apiKey: 'cl-white:api-key',
+  model: 'cl-white:model',
+  locale: 'cl-white:locale',
+  location: 'cl-white:location',
+  themePreference: 'cl-white:theme-preference',
+  ttsVoice: 'cl-white:tts-voice',
+  fontSize: 'cl-white:font-size',
+  soundEffects: 'cl-white:sound-effects',
+  autoCollapseThinking: 'cl-white:auto-collapse-thinking',
+  autoCompact: 'cl-white:auto-compact',
+  autoBackup: 'cl-white:auto-backup',
+  thinking: 'cl-white:thinking',
+  search: 'cl-white:search',
+  siderCollapsed: 'cl-white:sider-collapsed',
+} as const
+
+const read = (key: string) => {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+const write = (key: string, value: string | null) => {
+  try {
+    if (value === null) {
+      localStorage.removeItem(key)
+    } else {
+      localStorage.setItem(key, value)
+    }
+  } catch {
+    // 存储不可用时只在内存中生效
+  }
+}
+
+/** 位置选择模式跟随浏览器语言，与应用内选择的界面语言无关。 */
+export const isChineseBrowser = (): boolean =>
+  (typeof navigator === 'undefined' ? 'zh' : navigator.language).toLowerCase().startsWith('zh')
+
+const initialLocale = (): Locale => {
+  const saved = read(KEYS.locale)
+  if (saved === 'zh-CN' || saved === 'en-US') {
+    return saved
+  }
+  return isChineseBrowser() ? 'zh-CN' : 'en-US'
+}
+
+const initialLocation = (): UserLocation | null => {
+  try {
+    const location = normalizeLocation(JSON.parse(read(KEYS.location) ?? 'null'))
+    if (!location) {
+      return null
+    }
+    return isChineseBrowser()
+      ? location.region === 'CN' && location.province
+        ? location
+        : null
+      : { region: location.region }
+  } catch {
+    return null
+  }
+}
+
+/** 未保存过时跟随系统 */
+const initialThemePreference = (): ThemePreference => {
+  const saved = read(KEYS.themePreference)
+  return saved === 'light' || saved === 'dark' ? saved : 'system'
+}
+
+/** 未保存过时默认用 tide（暗潮）；手动选过海星的保持不变 */
+const initialTtsVoice = (): TtsVoice => (read(KEYS.ttsVoice) === 'stella' ? 'stella' : 'tide')
+
+const initialFontSize = (): FontSize => {
+  const saved = read(KEYS.fontSize)
+  return FONT_SIZES.includes(saved as FontSize) ? (saved as FontSize) : 'standard'
+}
+
+/** 未选过时默认 Opus 5.5 */
+const initialModel = (): ChatModel => {
+  const saved = read(KEYS.model)
+  return CHAT_MODELS.includes(saved as ChatModel) ? (saved as ChatModel) : 'claude-opus-5-5'
+}
+
+export const useSettings = create<Settings>(() => ({
+  apiKey: read(KEYS.apiKey),
+  model: initialModel(),
+  locale: initialLocale(),
+  location: initialLocation(),
+  themePreference: initialThemePreference(),
+  ttsVoice: initialTtsVoice(),
+  fontSize: initialFontSize(),
+  // 未设置过时默认开启
+  soundEffects: read(KEYS.soundEffects) !== 'false',
+  // 未设置过时默认关闭
+  autoCollapseThinking: read(KEYS.autoCollapseThinking) === 'true',
+  autoCompact: read(KEYS.autoCompact) === 'true',
+  autoBackup: read(KEYS.autoBackup) === 'true',
+  // 显示思考过程：未设置过时默认开（思考本来就会发生，看不看都一样计费）
+  thinking: read(KEYS.thinking) !== 'false',
+  search: read(KEYS.search) === 'true',
+  siderCollapsed: read(KEYS.siderCollapsed) === 'true',
+}))
+
+export const setLocale = (locale: Locale) => {
+  write(KEYS.locale, locale)
+  useSettings.setState({ locale })
+}
+
+export const setLocation = (value: UserLocation | null) => {
+  const location = normalizeLocation(value)
+  write(KEYS.location, location ? JSON.stringify(location) : null)
+  useSettings.setState({ location })
+}
+
+export const setThemePreference = (themePreference: ThemePreference) => {
+  write(KEYS.themePreference, themePreference)
+  useSettings.setState({ themePreference })
+}
+
+export const setTtsVoice = (ttsVoice: TtsVoice) => {
+  write(KEYS.ttsVoice, ttsVoice)
+  useSettings.setState({ ttsVoice })
+}
+
+export const setFontSize = (fontSize: FontSize) => {
+  write(KEYS.fontSize, fontSize)
+  useSettings.setState({ fontSize })
+}
+
+export const setSoundEffects = (soundEffects: boolean) => {
+  write(KEYS.soundEffects, String(soundEffects))
+  useSettings.setState({ soundEffects })
+}
+
+export const setAutoCompact = (autoCompact: boolean) => {
+  write(KEYS.autoCompact, String(autoCompact))
+  useSettings.setState({ autoCompact })
+}
+
+export const setAutoBackup = (autoBackup: boolean) => {
+  write(KEYS.autoBackup, String(autoBackup))
+  useSettings.setState({ autoBackup })
+}
+
+export const setAutoCollapseThinking = (autoCollapseThinking: boolean) => {
+  write(KEYS.autoCollapseThinking, String(autoCollapseThinking))
+  useSettings.setState({ autoCollapseThinking })
+}
+
+export const setApiKey = (apiKey: string | null) => {
+  write(KEYS.apiKey, apiKey)
+  useSettings.setState({ apiKey })
+}
+
+export const setModel = (model: ChatModel) => {
+  write(KEYS.model, model)
+  useSettings.setState({ model })
+}
+
+export const setThinking = (thinking: boolean) => {
+  write(KEYS.thinking, String(thinking))
+  useSettings.setState({ thinking })
+}
+
+export const setSearch = (search: boolean) => {
+  write(KEYS.search, String(search))
+  useSettings.setState({ search })
+}
+
+export const setSiderCollapsed = (siderCollapsed: boolean) => {
+  write(KEYS.siderCollapsed, String(siderCollapsed))
+  useSettings.setState({ siderCollapsed })
+}

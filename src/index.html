@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f0e6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CL WHITE" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <title>CL WHITE</title>
+    <style>
+      /*
+       * 开屏（约 1.7 秒，冷启动播一次，点一下跳过）：
+       * 签名从左到右写出（光晕随之浮现）→ 背景褪去，签名本身移动、缩放到欢迎页签名的位置，
+       * 落定后直接交给欢迎页（同一个签名接力，不切换、不闪）。
+       */
+      #white-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      #white-splash .bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(120% 70% at 50% 40%, #2a2520 0%, #1c1a17 62%);
+        transition: opacity 520ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #white-splash.light .bg {
+        background: radial-gradient(120% 70% at 50% 40%, #fbf8f2 0%, #f5f0e6 62%);
+      }
+      #white-splash.handoff .bg {
+        opacity: 0;
+      }
+      #white-splash.handoff {
+        pointer-events: none;
+      }
+      #white-splash .sig {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        width: 200px;
+        height: 79px;
+        margin: -40px 0 0 -100px;
+        transform-origin: 0 0;
+        transition:
+          transform 560ms cubic-bezier(0.65, 0, 0.35, 1),
+          opacity 300ms ease;
+      }
+      #white-splash img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        -webkit-user-drag: none;
+      }
+      #white-splash .ink {
+        -webkit-mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+        mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+        -webkit-mask-size: 260% 100%;
+        mask-size: 260% 100%;
+        animation: white-splash-write 900ms cubic-bezier(0.45, 0, 0.25, 1) 80ms both;
+      }
+      #white-splash .glow {
+        opacity: 0;
+        filter: blur(11px);
+        animation: white-splash-glow 1150ms ease 80ms both;
+      }
+      @keyframes white-splash-write {
+        from {
+          -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+        }
+        to {
+          -webkit-mask-position: 0 0;
+          mask-position: 0 0;
+        }
+      }
+      /* 光晕随书写慢慢浮现，直接停在与欢迎页签名相同的亮度，不再闪一下 */
+      @keyframes white-splash-glow {
+        0%,
+        35% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 0.25;
+        }
+      }
+      #white-splash.light .glow {
+        animation-name: white-splash-glow-light;
+      }
+      @keyframes white-splash-glow-light {
+        0%,
+        35% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 0.18;
+        }
+      }
+      /* 开屏期间先把欢迎页的签名藏起来，等开屏的签名飞过去接上 */
+      html[data-splash] [data-splash-target] {
+        visibility: hidden;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #white-splash .ink,
+        #white-splash .glow {
+          animation: none;
+        }
+        #white-splash .sig,
+        #white-splash .bg {
+          transition-duration: 1ms;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="white-splash" aria-hidden="true">
+      <div class="bg"></div>
+      <div class="sig">
+        <img class="glow" src="icons/signature.png" alt="" />
+        <img class="ink" src="icons/signature.png" alt="" />
+      </div>
+    </div>
+    <script>
+      ;(function () {
+        var splash = document.getElementById('white-splash')
+        if (!splash) return
+        var root = document.documentElement
+        // 按应用里保存的主题（没有就跟随系统）选深 / 浅底色，避免一闪
+        var pref = null
+        try {
+          pref = localStorage.getItem('cl-white:theme-preference')
+        } catch (e) {}
+        var dark =
+          pref === 'dark' ||
+          (pref !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)
+        if (!dark) splash.classList.add('light')
+        // 告诉欢迎页：签名由开屏写好后接过去，这次不用再写一遍
+        root.setAttribute('data-splash', '')
+        window.__whiteSplash = true
+        var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches
+        var sig = splash.querySelector('.sig')
+        var handed = false
+        var start = Date.now()
+        var WRITE_DONE = reduced ? 150 : 1180
+        var end = function () {
+          root.removeAttribute('data-splash')
+          splash.remove()
+        }
+        // 把开屏签名移动、缩放到欢迎页签名的位置，背景同时褪去；找不到欢迎页就原地淡出
+        var handoff = function () {
+          if (handed) return
+          handed = true
+          var target = document.querySelector('[data-splash-target]')
+          var from = sig.getBoundingClientRect()
+          splash.classList.add('handoff')
+          if (target) {
+            var to = target.getBoundingClientRect()
+            var scale = to.width / from.width
+            sig.style.transform =
+              'translate(' + (to.left - from.left) + 'px,' + (to.top - from.top) + 'px) scale(' + scale + ')'
+          } else {
+            sig.style.opacity = '0'
+          }
+          setTimeout(end, reduced ? 120 : 600)
+        }
+        // 写完后等应用就绪（欢迎页签名出现）再接力，最多再等 1.5 秒
+        var tryHandoff = function () {
+          if (handed) return
+          if (document.querySelector('[data-splash-target]') || Date.now() - start > WRITE_DONE + 1500) {
+            handoff()
+          } else {
+            setTimeout(tryHandoff, 50)
+          }
+        }
+        setTimeout(tryHandoff, WRITE_DONE)
+        // 点一下：跳过剩余书写，直接接力
+        splash.addEventListener('pointerdown', function () {
+          sig.querySelector('.ink').style.animation = 'none'
+          var glow = sig.querySelector('.glow')
+          glow.style.animation = 'none'
+          glow.style.opacity = '0.25'
+          handoff()
+        })
+      })()
+    </script>
+    <div id="root"></div>
+  </body>
+</html>

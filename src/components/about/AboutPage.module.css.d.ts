@@ -1,0 +1,21 @@
+declare const styles: {
+  readonly "header": string;
+  readonly "back": string;
+  readonly "title": string;
+  readonly "body": string;
+  readonly "hero": string;
+  readonly "version": string;
+  readonly "card": string;
+  readonly "cardTitle": string;
+  readonly "text": string;
+  readonly "chips": string;
+  readonly "chip": string;
+  readonly "chipMore": string;
+  readonly "mail": string;
+  readonly "mailLink": string;
+  readonly "mailLabel": string;
+  readonly "mailAddress": string;
+  readonly "copy": string;
+  readonly "footnote": string;
+};
+export = styles;

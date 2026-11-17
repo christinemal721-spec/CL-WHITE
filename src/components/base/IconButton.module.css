@@ -1,0 +1,61 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  transition:
+    background-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
+
+  /* 按下 / 悬停：背后一层淡淡的冰蓝微光，图标跟着亮一点 */
+  &:active:not(:disabled) {
+    background: radial-gradient(circle, var(--white-icon-glow) 0%, transparent 70%);
+    color: var(--white-icon-active);
+  }
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: radial-gradient(circle, var(--white-icon-glow) 0%, transparent 70%);
+      color: var(--white-icon-active);
+    }
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--dsw-alias-button-primary-fill);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--dsw-alias-label-caption);
+  }
+}
+
+.xs {
+  width: var(--ds-control-height-xs);
+  height: var(--ds-control-height-xs);
+}
+
+.m {
+  width: 34px;
+  height: 34px;
+}
+
+.xl {
+  width: var(--ds-control-height-xl);
+  height: var(--ds-control-height-xl);
+}
+
+.tertiary {
+  color: var(--white-icon-muted);
+}
+
+.primary {
+  color: var(--white-icon);
+}

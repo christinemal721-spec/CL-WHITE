@@ -1,0 +1,326 @@
+/* 历史搜索页：从「搜索」按钮的位置长成整页，关闭时缩回按钮 */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(120% 60% at 50% -10%, var(--white-glow), transparent 60%),
+    var(--dsw-alias-bg-base);
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(
+    var(--from-top, 50%) var(--from-right, 50%) var(--from-bottom, 50%) var(--from-left, 50%)
+      round 12px
+  );
+  transition:
+    clip-path 280ms var(--white-ease-in),
+    opacity 220ms var(--white-ease-in) 60ms,
+    visibility 0s linear 300ms;
+}
+
+.open {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(0 0 0 0 round 0);
+  transition:
+    clip-path 440ms var(--white-ease-out),
+    opacity 160ms var(--white-ease-out),
+    visibility 0s;
+}
+
+/* 选中结果：不缩回按钮，原地淡出 */
+.fade {
+  clip-path: inset(0 0 0 0 round 0);
+  filter: blur(6px);
+  transition:
+    opacity 220ms var(--white-ease-in),
+    filter 220ms var(--white-ease-in),
+    visibility 0s linear 240ms;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  height: 100%;
+  padding-top: env(safe-area-inset-top);
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(14px);
+  transition:
+    opacity 160ms var(--white-ease-in),
+    filter 160ms var(--white-ease-in),
+    transform 200ms var(--white-ease-in);
+}
+
+.open .inner {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  transition:
+    opacity 300ms var(--white-ease-out) 90ms,
+    filter 320ms var(--white-ease-out) 90ms,
+    transform 380ms var(--white-ease-out) 60ms;
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 10px 14px 8px 56px;
+}
+
+.back {
+  position: absolute;
+  top: 12px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--white-icon);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * 搜索框：空的时候停在可见区域中心（并水平居中），一输入就滑到顶部，结果随后浮现。
+ * 用 transform 移动，不触发重新布局。
+ */
+.dock {
+  position: relative;
+  transition: transform 460ms var(--white-ease-out);
+}
+
+.idle {
+  transform: translate(-21px, var(--dock-y, 30vh));
+}
+
+.hint {
+  position: absolute;
+  top: 58px;
+  left: 0;
+  right: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: var(--dsw-alias-label-caption);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition:
+    opacity 160ms var(--white-ease-in),
+    transform 200ms var(--white-ease-in);
+}
+
+.idle .hint {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 320ms var(--white-ease-out) 120ms,
+    transform 380ms var(--white-ease-out) 120ms;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 6px 0 14px;
+  border-radius: 22px;
+  background: var(--white-glass);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--white-accent) 22%, transparent),
+    0 6px 22px var(--white-glow);
+  transition: box-shadow 220ms var(--white-ease-out);
+}
+
+.field:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--white-accent) 48%, transparent),
+    0 8px 28px var(--white-glow);
+}
+
+.fieldIcon {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--white-icon-muted);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin-left: 10px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  /* 不小于 16px：iOS 聚焦输入框时不会放大整页 */
+  font: inherit;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.input::placeholder {
+  color: var(--dsw-alias-label-caption);
+  letter-spacing: 0.04em;
+}
+
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.clear {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--white-icon-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 14px calc(24px + env(safe-area-inset-bottom));
+}
+
+
+
+
+.status,
+.count {
+  padding: 10px 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--dsw-alias-label-caption);
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 2px;
+  padding: 12px 12px 13px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 160ms ease;
+}
+
+.result:hover,
+.result:active {
+  background: color-mix(in srgb, var(--white-accent) 8%, transparent);
+}
+
+.resultHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* 标题与正文同级略小，预览再小一档 */
+.resultTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(15px * var(--white-font-scale, 1));
+  line-height: 1.45;
+  color: var(--dsw-alias-label-primary);
+}
+
+.resultDate {
+  flex-shrink: 0;
+  font-family: var(--ds-font-family-code);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--dsw-alias-label-caption);
+}
+
+.resultSnippet {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: calc(13px * var(--white-font-scale, 1));
+  line-height: 1.6;
+  color: var(--dsw-alias-label-secondary);
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.mark {
+  padding: 0 1px;
+  border-radius: 3px;
+  color: var(--white-on-glass);
+  background: color-mix(in srgb, var(--white-accent) 20%, transparent);
+}
+
+/* 右滑返回：页面已经滑出屏幕，直接隐藏，不再播放缩回动画 */
+.instant,
+.instant .inner {
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .open,
+  .fade,
+  .inner,
+  .open .inner {
+    transition-duration: 120ms;
+    transition-delay: 0s;
+    clip-path: none;
+    transform: none;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock {
+    transition-duration: 120ms;
+  }
+}
+
+.more {
+  display: block;
+  width: 100%;
+  margin: 6px 0 18px;
+  padding: 12px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(127, 127, 160, 0.18));
+  border-radius: 12px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, inherit);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}

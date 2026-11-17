@@ -1,0 +1,170 @@
+/* 联系作者：页面外壳沿用搜索页的样式，这里只管内容 */
+.header {
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  padding-top: 12px;
+  padding-bottom: 6px;
+}
+
+.back {
+  top: 50%;
+  transform: translateY(calc(-50% + 3px));
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--dsw-alias-label-primary);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 20px calc(36px + env(safe-area-inset-bottom));
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0 26px;
+}
+
+.version {
+  font-family: var(--ds-font-family-code);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.card {
+  margin: 0 auto 14px;
+  max-width: 560px;
+  padding: 18px 20px 20px;
+  border-radius: 20px;
+}
+
+.cardTitle {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--white-accent);
+}
+
+.text {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--dsw-alias-label-secondary);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--dsw-alias-label-primary);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--dsw-alias-label-tertiary) 70%, transparent);
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-border-l2);
+}
+
+.chipMore {
+  text-decoration: none;
+  color: var(--dsw-alias-label-tertiary);
+  box-shadow: none;
+  padding-left: 2px;
+}
+
+.mail {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.mailLink {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--white-accent) 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white-accent) 26%, transparent);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--white-accent) 13%, transparent);
+  }
+}
+
+.mailLabel {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.mailAddress {
+  overflow: hidden;
+  font-family: var(--ds-font-family-code);
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--white-accent);
+}
+
+.copy {
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--dsw-alias-border-l1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.footnote {
+  margin: 26px 0 0;
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  color: var(--dsw-alias-label-caption);
+}

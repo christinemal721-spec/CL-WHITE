@@ -1,0 +1,21 @@
+declare const styles: {
+  readonly "container": string;
+  readonly "scroll": string;
+  readonly "column": string;
+  readonly "loadEarlier": string;
+  readonly "item": string;
+  readonly "offscreenSkippable": string;
+  readonly "enterUser": string;
+  readonly "enterAssistant": string;
+  readonly "jumpAnchor": string;
+  readonly "jumpButton": string;
+  readonly "jumpVisible": string;
+  readonly "selecting": string;
+  readonly "selectMark": string;
+  readonly "selected": string;
+  readonly "roundHead": string;
+  readonly "roundTail": string;
+  readonly "compactDivider": string;
+  readonly "jumpFlash": string;
+};
+export = styles;

@@ -1,0 +1,112 @@
+.container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--message-list-max-width);
+  margin: auto;
+  padding: 0 32px 64px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  animation: hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 签名：缩小作为点缀，不抢问候语 */
+.signature {
+  margin-bottom: 14px;
+}
+
+/* 极细 + 拉开字距：和签名的细线条同一种重量 */
+.greeting {
+  /* 苹方有极细字重，优先指定，避免回退到只有常规体的字体 */
+  font-family: 'PingFang SC', var(--dsw-font-family);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 100;
+  letter-spacing: 0.32em;
+  /* 末字后的字距会让整行偏左，用等量左内边距抵消 */
+  padding-left: 0.32em;
+  text-align: center;
+  color: var(--dsw-alias-label-secondary);
+}
+
+[data-ds-dark-theme] .greeting {
+  color: #d2c6b6;
+}
+
+/* 浅色底上极细字会看不清：字重提一档，颜色用次要文字色 */
+:global(body:not([data-ds-dark-theme])) .greeting {
+  font-weight: 200;
+}
+
+.since {
+  font-family: var(--ds-font-family-code);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  color: var(--dsw-alias-label-caption);
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 439px) {
+  .greeting {
+    font-size: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    animation: none;
+  }
+}
+
+@media not all and (min-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .welcome {
+    flex: 1;
+    min-height: 0;
+    justify-content: flex-end;
+    max-width: none;
+    margin: 0;
+    padding: 0 16px env(safe-area-inset-bottom);
+  }
+
+  .hero {
+    flex-shrink: 0;
+    margin: auto 0;
+  }
+
+  .caveat {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 6px 0;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    color: var(--dsw-alias-label-tertiary);
+    user-select: none;
+  }
+}

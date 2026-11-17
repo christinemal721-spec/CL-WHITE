@@ -1,0 +1,514 @@
+/*
+ * CL WHITE 的视觉：暖纸 + 陶土。
+ *
+ * 浅色是旧纸一样的米白底，深色是带暖意的炭灰（不用纯黑）；
+ * 强调色是陶土橙，只用在少数地方：按钮、光标、思考时的那点光。
+ */
+
+body {
+  /* 签名取色：陶土橙 → 赭石，像纸上的墨水 */
+  --white-ice: #f2c6a8;
+  --white-mid: #d97757;
+  --white-indigo: #c15f3c;
+
+  /* 微光玻璃：暖白浮在旧纸色的底上 */
+  --white-glass: #fffdf8;
+  --white-rim: linear-gradient(135deg, rgba(217, 119, 87, 0.42), rgba(193, 95, 60, 0.3));
+  --white-glow: rgba(193, 95, 60, 0.08);
+  --white-on-glass: #b4532f;
+  --white-accent: var(--white-indigo);
+  --white-on-accent: #fffdf8;
+  --white-caret: var(--white-indigo);
+
+  /* 图标：暖灰，按下时变成陶土色 */
+  --white-icon: #5e554b;
+  --white-icon-muted: #8c8275;
+  --white-icon-active: #b4532f;
+  --white-icon-glow: rgba(193, 95, 60, 0.12);
+  --white-ripple: rgba(193, 95, 60, 0.65);
+  --white-ripple-glow: rgba(193, 95, 60, 0.22);
+
+  /* 字号缩放：设置里的「字体大小」写入这个变量 */
+  --white-font-scale: 1;
+
+  /* 原主题里的蓝色、冷灰整组换成陶土色和暖灰，没单独覆盖的地方也跟着变 */
+  --dsw-static-blue-50: rgb(251, 241, 235);
+  --dsw-static-blue-100: rgb(248, 230, 220);
+  --dsw-static-blue-200: rgb(242, 210, 192);
+  --dsw-static-blue-300: rgb(232, 180, 152);
+  --dsw-static-blue-400: rgb(224, 138, 104);
+  --dsw-static-blue-450: rgb(207, 112, 78);
+  --dsw-static-blue-500: rgb(193, 95, 60);
+  --dsw-static-blue-600: rgb(150, 76, 50);
+  --dsw-static-blue-800: rgb(78, 52, 40);
+  --dsw-static-blue-900: rgb(56, 42, 34);
+  --dsw-static-neutral-bluish-00: rgb(255, 253, 248);
+  --dsw-static-neutral-bluish-50: rgb(250, 247, 241);
+  --dsw-static-neutral-bluish-60: rgb(247, 243, 236);
+  --dsw-static-neutral-bluish-75: rgb(243, 238, 229);
+  --dsw-static-neutral-bluish-100: rgb(238, 232, 222);
+  --dsw-static-neutral-bluish-150: rgb(234, 227, 216);
+  --dsw-static-neutral-bluish-200: rgb(226, 218, 205);
+  --dsw-static-neutral-bluish-300: rgb(210, 201, 188);
+  --dsw-static-neutral-bluish-400: rgb(178, 169, 156);
+  --dsw-static-neutral-bluish-600: rgb(138, 129, 117);
+  --dsw-static-neutral-bluish-700: rgb(102, 94, 84);
+  --dsw-static-neutral-bluish-750: rgb(74, 68, 61);
+  --dsw-static-neutral-bluish-800: rgb(58, 53, 47);
+  --dsw-static-neutral-bluish-850: rgb(46, 42, 37);
+  --dsw-static-neutral-bluish-900: rgb(33, 30, 27);
+  --dsw-static-neutral-bluish-950: rgb(26, 24, 21);
+  --dsw-static-neutral-bluish-1000: rgb(20, 18, 16);
+
+  --dsw-alias-brand-primary: var(--white-indigo);
+  --dsw-alias-brand-text: #b4532f;
+  --dsw-alias-button-primary-hover: #cf6e4b;
+  --dsw-specific-bubble: #fffdf8;
+
+  /* 浅色底：旧纸一样的米白，让暖白的气泡、输入框浮起来 */
+  --dsw-alias-bg-base: #f5f0e6;
+  --dsw-alias-bg-layer-2: #fffdf8;
+  --dsw-alias-bg-layer-3: #fffdf8;
+  --dsw-alias-border-l1: rgba(60, 44, 30, 0.06);
+  --dsw-alias-border-l2-darkmode-thin: rgba(60, 44, 30, 0.09);
+  --dsw-alias-border-l2: rgba(60, 44, 30, 0.12);
+  --dsw-alias-interactive-bg-hover: rgba(193, 95, 60, 0.06);
+  --dsw-alias-button-ghost-active-border: rgba(193, 95, 60, 0.38);
+  --dsw-alias-button-ghost-active-fill: rgba(193, 95, 60, 0.08);
+  --dsw-alias-button-ghost-active-hover: rgba(193, 95, 60, 0.13);
+  --dsw-alias-label-primary: #2a241e;
+  --dsw-alias-label-secondary: #5e554b;
+  --dsw-alias-label-tertiary: #8a8073;
+  --dsw-alias-label-caption: #a1978a;
+  --dsw-alias-markdown-code-block: #f0eadf;
+  --dsw-alias-markdown-code-block-banner: #e9e1d3;
+  --dsw-alias-markdown-inline-code: #ece4d6;
+  --dsw-specific-input-major: #fffdf8;
+  --dsw-specific-sidebar-fill: #eee7da;
+  --dsw-specific-sidebar-nav-item-hover: rgba(193, 95, 60, 0.05);
+  --dsw-specific-sidebar-nav-item-active-accent: rgba(193, 95, 60, 0.1);
+
+  --dsw-font-markdown-h1: 700 calc(24px * var(--white-font-scale)) / calc(34px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-h2: 700 calc(22px * var(--white-font-scale)) / calc(32px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-h3: 700 calc(20px * var(--white-font-scale)) / calc(30px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-h4: 600 calc(16px * var(--white-font-scale)) / calc(28px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-base: calc(16px * var(--white-font-scale)) / calc(28px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-base-strong: 600 calc(16px * var(--white-font-scale)) / calc(28px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-table: calc(15px * var(--white-font-scale)) / calc(25px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-table-head: 500 calc(15px * var(--white-font-scale)) / calc(25px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-small: calc(14px * var(--white-font-scale)) / calc(24px * var(--white-font-scale)) var(--dsw-font-family);
+  --dsw-font-markdown-code-block: calc(13px * var(--white-font-scale)) / calc(22px * var(--white-font-scale)) var(--ds-font-family-code);
+}
+
+body[data-ds-dark-theme] {
+  --dsw-static-blue-50: rgb(251, 241, 235);
+  --dsw-static-blue-100: rgb(248, 230, 220);
+  --dsw-static-blue-200: rgb(242, 210, 192);
+  --dsw-static-blue-300: rgb(232, 180, 152);
+  --dsw-static-blue-400: rgb(224, 138, 104);
+  --dsw-static-blue-450: rgb(207, 112, 78);
+  --dsw-static-blue-500: rgb(193, 95, 60);
+  --dsw-static-blue-600: rgb(150, 76, 50);
+  --dsw-static-blue-800: rgb(78, 52, 40);
+  --dsw-static-blue-900: rgb(56, 42, 34);
+  --dsw-static-neutral-bluish-00: rgb(255, 253, 248);
+  --dsw-static-neutral-bluish-50: rgb(250, 247, 241);
+  --dsw-static-neutral-bluish-60: rgb(250, 247, 241);
+  --dsw-static-neutral-bluish-75: rgb(243, 238, 229);
+  --dsw-static-neutral-bluish-100: rgb(238, 232, 222);
+  --dsw-static-neutral-bluish-150: rgb(234, 227, 216);
+  --dsw-static-neutral-bluish-200: rgb(226, 218, 205);
+  --dsw-static-neutral-bluish-300: rgb(210, 201, 188);
+  --dsw-static-neutral-bluish-400: rgb(178, 169, 156);
+  --dsw-static-neutral-bluish-600: rgb(138, 129, 117);
+  --dsw-static-neutral-bluish-700: rgb(102, 94, 84);
+  --dsw-static-neutral-bluish-750: rgb(74, 68, 61);
+  --dsw-static-neutral-bluish-800: rgb(58, 53, 47);
+  --dsw-static-neutral-bluish-850: rgb(46, 42, 37);
+  --dsw-static-neutral-bluish-900: rgb(33, 30, 27);
+  --dsw-static-neutral-bluish-950: rgb(26, 24, 21);
+  --dsw-static-neutral-bluish-1000: rgb(20, 18, 16);
+
+  --white-glass: #26221e;
+  --white-rim: linear-gradient(135deg, rgba(242, 198, 168, 0.36), rgba(217, 119, 87, 0.42));
+  --white-glow: rgba(217, 119, 87, 0.16);
+  --white-on-glass: var(--white-ice);
+  --white-accent: #e08a68;
+  --white-on-accent: #1c1a17;
+  --white-caret: #eba184;
+  --white-icon: #b8ae9f;
+  --white-icon-muted: #7f7467;
+  --white-icon-active: #f3e9dc;
+  --white-icon-glow: rgba(224, 138, 104, 0.18);
+  --white-ripple: rgba(242, 198, 168, 0.85);
+  --white-ripple-glow: rgba(224, 138, 104, 0.4);
+
+  --dsw-alias-bg-base: #1c1a17;
+  --dsw-alias-bg-layer-2: #23201c;
+  --dsw-alias-bg-layer-3: #2b2722;
+  --dsw-alias-bg-skeleton: rgba(242, 198, 168, 0.06);
+  --dsw-alias-border-inverted: rgba(242, 222, 200, 0.06);
+  --dsw-alias-border-l1: rgba(242, 222, 200, 0.06);
+  --dsw-alias-border-l2-darkmode-thin: rgba(242, 222, 200, 0.08);
+  --dsw-alias-border-l2: rgba(242, 222, 200, 0.12);
+  --dsw-alias-border-l3: rgba(242, 222, 200, 0.16);
+  --dsw-alias-brand-primary: #e08a68;
+  --dsw-alias-brand-text: #eba184;
+  --dsw-alias-button-primary-fill: #d97757;
+  --dsw-alias-button-primary-hover: #e3876a;
+  --dsw-alias-button-elevated-fill: #26221e;
+  --dsw-alias-button-ghost-active-border: rgba(224, 138, 104, 0.45);
+  --dsw-alias-button-ghost-active-fill: rgba(217, 119, 87, 0.14);
+  --dsw-alias-button-ghost-active-hover: rgba(217, 119, 87, 0.2);
+  --dsw-alias-interactive-bg-active: rgba(242, 222, 200, 0.1);
+  --dsw-alias-interactive-bg-hover: rgba(242, 222, 200, 0.06);
+  --dsw-alias-interactive-bg-hover-accent: rgba(242, 222, 200, 0.16);
+  --dsw-alias-label-primary: #ede6db;
+  --dsw-alias-label-secondary: #b8ae9f;
+  --dsw-alias-label-tertiary: #857a6c;
+  --dsw-alias-label-caption: #73695c;
+  --dsw-alias-label-dimmed: #4a433b;
+  --dsw-alias-markdown-citation: #2b2722;
+  --dsw-alias-markdown-code-block-banner: #26221e;
+  --dsw-alias-markdown-code-block: #211e1a;
+  --dsw-alias-markdown-inline-code: #2b2722;
+  --dsw-alias-markdown-placeholder: #26221e;
+  --dsw-alias-markdown-tag: #2b2722;
+  --dsw-alias-toast-bg: #2b2722;
+  --dsw-alias-tooltip-bg: #2b2722;
+  --dsw-specific-bubble: #26221e;
+  --dsw-specific-input-major: #221f1b;
+  --dsw-specific-login-input: #211e1a;
+  --dsw-specific-selector: #2b2722;
+  --dsw-specific-sidebar-fill: #181613;
+  --dsw-specific-sidebar-nav-item-active-accent: rgba(224, 138, 104, 0.12);
+  --dsw-specific-sidebar-nav-item-hover: rgba(242, 222, 200, 0.05);
+}
+
+/* 字体大小：极小 / 小 / 标准 / 大 / 特大 */
+body[data-font-size='xsmall'] {
+  --white-font-scale: 0.875;
+}
+
+body[data-font-size='small'] {
+  --white-font-scale: 0.9375;
+}
+
+body[data-font-size='large'] {
+  --white-font-scale: 1.0625;
+}
+
+body[data-font-size='xlarge'] {
+  --white-font-scale: 1.125;
+}
+
+/*
+ * 微光玻璃：气泡、发送键、光点共用的质感。
+ * 两层背景：padding-box 填底色，border-box 透出渐变细边。
+ */
+.white-glass {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--white-glass), var(--white-glass)) padding-box,
+    var(--white-rim) border-box;
+  box-shadow:
+    0 0 18px var(--white-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* 流式输出时句尾的光标，带一点呼吸 */
+.ds-markdown.ds-streaming > :last-child::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: -0.16em;
+  border-radius: 1px;
+  background: var(--white-caret);
+  box-shadow: 0 0 8px var(--white-caret);
+  animation: white-caret 1.1s ease-in-out infinite;
+}
+
+@keyframes white-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-markdown.ds-streaming > :last-child::after {
+    animation: none;
+  }
+}
+
+/* 微光涟漪：见 utils/ripple.ts */
+.white-ripple {
+  position: fixed;
+  z-index: 9999;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px solid var(--white-ripple);
+  box-shadow:
+    0 0 10px var(--white-ripple-glow),
+    inset 0 0 8px var(--white-ripple-glow);
+  pointer-events: none;
+  animation: white-ripple 0.52s cubic-bezier(0.25, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes white-ripple {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+
+  /* 前段亮着快速张开，看得清「按到了」 */
+  35% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+/* =====================================================================
+ * 冷光浮现：全站统一的展开 / 关闭动效
+ * 打开：从微模糊、略小、半透明中浮出（260ms，先快后慢）
+ * 关闭：更快地淡出、轻轻下沉（160ms）
+ * 元素用 data-motion 声明自己的动效；关闭时由 exitGhost 复制一份带 data-exiting 的影子播放退场。
+ * ===================================================================== */
+:root {
+  --white-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --white-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --white-enter: 260ms;
+  --white-exit: 160ms;
+}
+
+@keyframes white-pop-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.96);
+  }
+}
+
+@keyframes white-pop-out {
+  to {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px) scale(0.98);
+  }
+}
+
+@keyframes white-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes white-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* 小浮层（下拉、菜单、提示）：从锚点方向轻轻落下 */
+@keyframes white-drop-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+@keyframes white-drop-out {
+  to {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(-2px) scale(0.98);
+  }
+}
+
+/* 右侧面板 */
+@keyframes white-panel-in {
+  from {
+    opacity: 0.4;
+    filter: blur(6px);
+    transform: translateX(28px);
+  }
+}
+
+@keyframes white-panel-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(24px);
+  }
+}
+
+/* 底部面板（移动端设置） */
+@keyframes white-sheet-in {
+  from {
+    opacity: 0.6;
+    filter: blur(6px);
+    transform: translateY(36px);
+  }
+}
+
+@keyframes white-sheet-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(28px);
+  }
+}
+
+/* 底部浮条（多选栏、输入框切换） */
+@keyframes white-rise-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(10px);
+  }
+}
+
+@keyframes white-rise-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(8px);
+  }
+}
+
+/* 顶部提示条 */
+@keyframes white-toast-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(-8px) scale(0.97);
+  }
+}
+
+@keyframes white-toast-out {
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+[data-motion='pop'] {
+  animation: white-pop-in var(--white-enter) var(--white-ease-out) both;
+}
+[data-motion='fade'] {
+  animation: white-fade-in var(--white-enter) var(--white-ease-out) both;
+}
+[data-motion='drop'] {
+  transform-origin: top center;
+  animation: white-drop-in 200ms var(--white-ease-out) both;
+}
+[data-motion='panel'] {
+  animation: white-panel-in var(--white-enter) var(--white-ease-out) both;
+}
+[data-motion='rise'] {
+  animation: white-rise-in var(--white-enter) var(--white-ease-out) both;
+}
+/* 设置分组切换：新内容从滑动方向的另一侧进来 */
+@keyframes white-slide-left-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(36px);
+  }
+}
+@keyframes white-slide-right-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-36px);
+  }
+}
+[data-motion='slide-left'] {
+  animation: white-slide-left-in 300ms var(--white-ease-out) both;
+}
+[data-motion='slide-right'] {
+  animation: white-slide-right-in 300ms var(--white-ease-out) both;
+}
+[data-motion='toast'] {
+  animation: white-toast-in var(--white-enter) var(--white-ease-out) both;
+}
+/* 设置：桌面居中浮现，手机上从底部升起 */
+[data-motion='sheet'] {
+  animation: white-pop-in var(--white-enter) var(--white-ease-out) both;
+}
+@media not all and (min-width: 768px) {
+  [data-motion='sheet'] {
+    animation-name: white-sheet-in;
+    animation-duration: 300ms;
+  }
+}
+
+/* ---------- 退场影子 ---------- */
+[data-exiting] {
+  pointer-events: none !important;
+}
+[data-exiting][data-motion='pop'],
+[data-exiting] [data-motion='pop'] {
+  animation: white-pop-out var(--white-exit) var(--white-ease-in) both;
+}
+[data-exiting][data-motion='fade'],
+[data-exiting] [data-motion='fade'] {
+  animation: white-fade-out var(--white-exit) var(--white-ease-in) both;
+}
+[data-exiting][data-motion='drop'],
+[data-exiting] [data-motion='drop'] {
+  animation: white-drop-out 130ms var(--white-ease-in) both;
+}
+[data-exiting][data-motion='panel'],
+[data-exiting] [data-motion='panel'] {
+  animation: white-panel-out 190ms var(--white-ease-in) both;
+}
+[data-exiting][data-motion='rise'],
+[data-exiting] [data-motion='rise'] {
+  animation: white-rise-out var(--white-exit) var(--white-ease-in) both;
+}
+[data-exiting][data-motion='toast'],
+[data-exiting] [data-motion='toast'] {
+  animation: white-toast-out 200ms var(--white-ease-in) both;
+}
+[data-exiting][data-motion='sheet'],
+[data-exiting] [data-motion='sheet'] {
+  animation: white-pop-out var(--white-exit) var(--white-ease-in) both;
+}
+@media not all and (min-width: 768px) {
+  [data-exiting][data-motion='sheet'],
+  [data-exiting] [data-motion='sheet'] {
+    animation: white-sheet-out 220ms var(--white-ease-in) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion] {
+    animation-name: white-fade-in !important;
+    animation-duration: 120ms !important;
+  }
+  [data-exiting][data-motion],
+  [data-exiting] [data-motion] {
+    animation-name: white-fade-out !important;
+    animation-duration: 100ms !important;
+  }
+}
+
+/* 手机上往下拖着关掉的面板已经自己滑出去了，退场影子不再播放动画 */
+[data-exiting][data-dismissed],
+[data-exiting][data-dismissed] * {
+  animation: none !important;
+}

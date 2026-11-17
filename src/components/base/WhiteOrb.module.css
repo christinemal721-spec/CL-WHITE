@@ -1,0 +1,94 @@
+/* WHITE 的光点：一颗半透明的玻璃小球，里面有一点微光的瞳孔 */
+.orb {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--orb-size, 14px);
+  height: var(--orb-size, 14px);
+}
+
+.halo {
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--white-glow) 0%, transparent 68%);
+  opacity: 0.9;
+}
+
+.body {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background:
+    radial-gradient(
+        circle at 35% 30%,
+        rgba(230, 240, 255, 0.28) 0%,
+        rgba(224, 138, 104, 0.1) 55%,
+        rgba(193, 95, 60, 0.05) 100%
+      )
+      padding-box,
+    var(--white-rim) border-box;
+  box-shadow:
+    0 0 12px var(--white-glow),
+    inset 0 0 6px rgba(242, 198, 168, 0.12);
+}
+
+/* 瞳孔：偏向下方，像在看着输入框 */
+.pupil {
+  position: absolute;
+  left: 52%;
+  top: 56%;
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 40% 35%, #ffffff 0%, var(--white-caret) 55%, transparent 100%);
+  box-shadow: 0 0 6px var(--white-caret);
+  opacity: 0.9;
+}
+
+/* 呼吸：等待回复时光晕一胀一缩，瞳孔跟着轻轻放大 */
+.breathing {
+  .halo {
+    animation: orb-halo 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
+  .pupil {
+    animation: orb-pupil 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}
+
+@keyframes orb-halo {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes orb-pupil {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breathing .halo,
+  .breathing .pupil {
+    animation-duration: 4.8s;
+  }
+}
