@@ -86,7 +86,7 @@ export const en = {
   introLocal:
     'This is a 【local】 web tool. Make a habit of 【exporting your chat history (zip file)】 anytime, anywhere, so a browser cache cleanup cannot wipe it.',
   introUpdate:
-    'First 【export your chat history】, then remove the home-screen / desktop shortcut (this also clears local chats), reopen the demo site and refresh to get the latest version. After adding it back, import the zip in Settings to restore every chat.',
+    'First 【export your chat history】, then remove the home-screen / desktop shortcut (this also clears local chats), reopen the CL WHITE site and refresh to get the latest version. After adding it back, import the zip in Settings to restore every chat.',
   introFree: 'This web app is free to use; API usage is billed by Anthropic (top up on the Claude Developer Platform).',
   introConfirm: 'Got it',
   settingsAutoCompact: 'Auto-compact context',
@@ -118,8 +118,9 @@ export const en = {
   historySearchBack: 'Back',
   siderAbout: 'Contact',
   aboutTitle: 'Contact the author',
-  aboutVersionTitle: 'About V1',
-  aboutPurpose: 'CL WHITE is the Claude edition of DS WHITE: the same local web setup, talking directly to the Claude API. Chats and attachments stay on your own device.',
+  aboutVersionTitle: 'About V2',
+  aboutPurpose:
+    'CL WHITE V2 is the Claude edition of WHITE (V1 is DS WHITE, the DeepSeek edition). It keeps the same clean 【local web setup】: it talks directly to the Claude API, and chats and attachments stay on your own device.',
   aboutNoMore:
     'To keep the browser cache as stable as possible, apart from polishing the UI and fixing necessary bugs, 【no】 further features will be added, including but not limited to:',
   aboutExcludedLabel: 'Features that will not be added',

@@ -82,7 +82,7 @@ export const zh = {
   introLocal:
     '该工具为【本地】网页工具，请务必随时、随地做好【历史对话导出（zip 文件）】，防止被后台清缓存。',
   introUpdate:
-    '先做好【历史对话导出】，再删除主屏幕 / 桌面上的快捷方式（删除会一并清掉本地对话），然后重新打开 demo 网站并刷新，即可更新到最新版本；重新添加到主屏幕后，在设置里导入 zip 就能找回全部对话。',
+    '先做好【历史对话导出】，再删除主屏幕 / 桌面上的快捷方式（删除会一并清掉本地对话），然后重新打开 CL WHITE 网站并刷新，即可更新到最新版本；重新添加到主屏幕后，在设置里导入 zip 就能找回全部对话。',
   introFree: '该网页工具使用完全免费，API 费用由 Anthropic 按用量收取（在 Claude 开发者平台充值）。',
   introConfirm: '我已知晓',
   settingsAutoCompact: '自动压缩上下文',
@@ -114,8 +114,9 @@ export const zh = {
   historySearchBack: '返回',
   siderAbout: '联系作者',
   aboutTitle: '联系作者',
-  aboutVersionTitle: '关于 V1',
-  aboutPurpose: 'CL WHITE 是 DS WHITE 的 Claude 版：同一套本地网页方案，换成直接连 Claude API。对话、附件都只存在你自己的设备里。',
+  aboutVersionTitle: '关于 V2',
+  aboutPurpose:
+    'CL WHITE V2 是 WHITE 的 Claude 版（V1 是 DeepSeek 版 DS WHITE），延续同一套纯净的【本地网页方案】：直接连接 Claude API，对话和附件只存在你自己的设备里。',
   aboutNoMore:
     '为最大程度保证网页缓存稳定，除了继续打磨 UI 交互手感和排查必要 bug 之外，【不会】再加入任何额外的功能，包括且不限于：',
   aboutExcludedLabel: '不会加入的功能',

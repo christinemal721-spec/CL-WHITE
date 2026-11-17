@@ -8,7 +8,7 @@ import type { Session } from './types.js'
  */
 export const sessionToMarkdown = (session: Session, untitled: string): string => {
   const title = session.title || untitled
-  const lines = [`# ${title}`, '', `> 导出自 DS WHITE · ${formatDate(new Date())}`, '']
+  const lines = [`# ${title}`, '', `> 导出自 CL WHITE · ${formatDate(new Date())}`, '']
   for (const message of getVisibleMessages(session)) {
     lines.push('---', '')
     if (message.role === 'user') {

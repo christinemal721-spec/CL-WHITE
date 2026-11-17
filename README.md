@@ -1,16 +1,22 @@
-# CL WHITE
+# CL WHITE · V2
 
-CL WHITE 是 DS WHITE 的 Claude 版：一个纯网页、纯本地的聊天工具，直接调用 Claude API。没有后端服务器，对话和附件只存在你自己的设备上。
+CL WHITE V2 是 WHITE 的 Claude 版（V1 是 DeepSeek 版 [DS WHITE](https://github.com/christinemal721-spec/DS-WHITE)）：一个纯网页、纯本地的聊天工具，直接调用 Claude API。没有后端服务器，对话和附件只存在你自己的设备上。
 
-*CL WHITE is the Claude edition of DS WHITE: a static, local-only chat web app that talks directly to the Claude API.*
+*CL WHITE V2 is the Claude edition of WHITE (V1 is DS WHITE, the DeepSeek edition): a static, local-only chat web app that talks directly to the Claude API.*
+
+## 网址
+
+**在线使用：https://christinemal721-spec.github.io/CL-WHITE/**
+
+- 手机、电脑的浏览器直接打开就能用，不用下载安装。
+- 手机上建议「添加到主屏幕」（iPhone：Safari 分享按钮 › 添加到主屏幕；安卓：浏览器菜单 › 添加到主屏幕），之后像 App 一样全屏打开。
+- DeepSeek 版 DS WHITE 的网址是 https://christinemal721-spec.github.io/DS-WHITE/ ，两个网页的对话和设置互不影响。
 
 ## 开始使用
 
-1. 在 Claude 开发者平台（platform.claude.com）创建 API Key 并充值。
-2. 打开网页，在「设置 › 账户」里填入 API Key，点「确定」。网页会先校验，通过后才保存。
+1. 在 Claude 开发者平台（https://platform.claude.com ）创建 API Key 并充值。
+2. 打开上面的网址，在「设置 › 账户」里填入 API Key，点「确定」。网页会先校验，通过后才保存。
 3. 点输入栏左下角的模型按钮选模型（默认 Opus 5.5），设置里也能改。
-
-在手机上可以「添加到主屏幕」，像 App 一样全屏使用。
 
 ## 和 DS WHITE 的区别
 
@@ -50,7 +56,7 @@ CL WHITE 是 DS WHITE 的 Claude 版：一个纯网页、纯本地的聊天工�
 - **数据只在本机。** API Key 和设置存在浏览器的 localStorage，对话和附件原件存在 IndexedDB。网页只和 api.anthropic.com 通信，没有任何第三方服务器。
 - **API Key 是明文保存的。** 和 DS WHITE 一样，Key 存在浏览器里，能打开这台设备浏览器开发者工具的人都能看到。别在公用电脑上用，也别把装了 Key 的浏览器借给别人。建议在开发者平台给这个 Key 设置用量上限。
 - **浏览器直连。** Claude API 默认不允许网页直接调用，请求要带上 `anthropic-dangerous-direct-browser-access` 头。名字里的 "dangerous" 说的就是上一条：Key 在浏览器里。自己用自己的 Key 没问题。
-- **清缓存会丢对话。** 请定期导出 zip 备份。
+- **清缓存会丢对话。** 请定期导出 zip 备份。删除主屏幕图标也会一起清掉本地对话，删之前先导出。
 
 ## 开发
 
