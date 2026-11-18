@@ -2,7 +2,8 @@ import { useTranslate } from '../../i18n/index.js'
 import clsx from 'clsx'
 import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { useIsMobile } from '../../app/viewport.js'
-import { IconEditOutline16, IconTrashThin16 } from '../base/icons.js'
+import { IconEditOutline16, IconEllipsisOutline16, IconTrashThin16 } from '../base/icons.js'
+import { Menu } from '../base/Menu.js'
 import { editMessage, retryUpload } from '../../services/chat/store.js'
 import { stopReadAloud } from '../../services/speech/readAloud.js'
 import type { UserMessage as UserMessageType } from '../../services/chat/types.js'
@@ -81,7 +82,7 @@ export const UserMessage = memo(function UserMessage({
         </div>
       ) : null}
       {editing ? (
-        <div className={styles.editor}>
+        <div className={styles.editor} data-editor>
           <textarea
             ref={textareaRef}
             className={styles.textarea}
@@ -128,13 +129,28 @@ export const UserMessage = memo(function UserMessage({
                   setEditing(true)
                 }}
               />
-              <IconButton
-                icon={<IconTrashThin16 />}
-                tooltip={t('deleteRound')}
-                tooltipPlacement="bottom"
-                disabled={busy}
-                onClick={() => startRoundSelection(sessionId, message.id)}
-              />
+              {/* 删除收进「更多」菜单，和编辑按钮隔开，免得误触 */}
+              <Menu
+                options={[
+                  {
+                    key: 'select',
+                    label: t('deleteRoundsStart'),
+                    icon: <IconTrashThin16 />,
+                    danger: true,
+                    onSelect: () => startRoundSelection(sessionId, message.id),
+                  },
+                ]}
+              >
+                {({ toggle }) => (
+                  <IconButton
+                    icon={<IconEllipsisOutline16 />}
+                    tooltip={t('more')}
+                    tooltipPlacement="bottom"
+                    disabled={busy}
+                    onClick={toggle}
+                  />
+                )}
+              </Menu>
             </div>
             <BranchSwitcher versions={versions} disabled={busy} onSelect={onSelectVersion} />
           </div>

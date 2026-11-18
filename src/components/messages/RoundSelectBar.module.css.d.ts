@@ -3,6 +3,7 @@ declare const styles: {
   readonly "count": string;
   readonly "text": string;
   readonly "delete": string;
+  readonly "textActive": string;
   readonly "confirmText": string;
 };
 export = styles;

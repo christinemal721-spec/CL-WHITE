@@ -34,8 +34,7 @@ import { validCompaction } from '../../services/chat/compaction.js'
 import { useSettings } from '../../services/settings.js'
 import {
   endRoundSelection,
-  startRoundSelection,
-  toggleRound,
+  tapRound,
   useRoundSelection,
 } from './roundSelection.js'
 import styles from './MessageList.module.css'
@@ -73,8 +72,6 @@ const PAGE_SIZE_MOBILE = 24
 const JUMP_CONTEXT = 6
 /** 末尾这几条不做 content-visibility：正在输出、或刚发出的消息要实时布局。 */
 const LIVE_TAIL = 2
-const LONG_PRESS_MS = 450
-const isTouch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
 
 /**
  * 单条消息外壳。离开末尾后量一次真实高度，打开 content-visibility：
@@ -90,7 +87,7 @@ const MessageItem = memo(function MessageItem({
   roundId,
   selecting,
   selected,
-  onLongPress,
+  onTapRound,
   children,
 }: {
   messageId: string
@@ -102,8 +99,8 @@ const MessageItem = memo(function MessageItem({
   roundId: string | null
   selecting: boolean
   selected: boolean
-  /** 长按进入多选（只在触屏上） */
-  onLongPress: (roundId: string) => void
+  /** 多选时点了这一轮 */
+  onTapRound: (roundId: string) => void
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -132,55 +129,6 @@ const MessageItem = memo(function MessageItem({
     return () => cancelAnimationFrame(frame)
   }, [live])
   const canSelect = selecting && roundId !== null
-  // 长按：按住约 0.45 秒、手指没怎么动，就进入多选并选中这一轮
-  const pressRef = useRef<{ timer: number; x: number; y: number; fired: boolean } | null>(null)
-  const cancelPress = () => {
-    if (pressRef.current) {
-      window.clearTimeout(pressRef.current.timer)
-      if (!pressRef.current.fired) {
-        pressRef.current = null
-      }
-    }
-  }
-  // 进入多选后也要保留这些监听：抬手那一下的点击必须吞掉，否则会把刚选中的一轮又点掉
-  const longPressHandlers =
-    roundId !== null
-      ? {
-          onTouchStart: (event: React.TouchEvent) => {
-            if (selecting || event.touches.length !== 1) {
-              return
-            }
-            const touch = event.touches[0]
-            const press = { timer: 0, x: touch.clientX, y: touch.clientY, fired: false }
-            press.timer = window.setTimeout(() => {
-              press.fired = true
-              window.getSelection()?.removeAllRanges()
-              haptic()
-              onLongPress(roundId)
-            }, LONG_PRESS_MS)
-            pressRef.current = press
-          },
-          onTouchMove: (event: React.TouchEvent) => {
-            const press = pressRef.current
-            const touch = event.touches[0]
-            if (press && (Math.abs(touch.clientX - press.x) > 10 || Math.abs(touch.clientY - press.y) > 10)) {
-              cancelPress()
-            }
-          },
-          onTouchEnd: (event: React.TouchEvent) => {
-            // 长按已经触发：吞掉随后的点击，不要误点到按钮
-            if (pressRef.current?.fired) {
-              event.preventDefault()
-            }
-            cancelPress()
-            pressRef.current = null
-          },
-          onTouchCancel: () => {
-            cancelPress()
-            pressRef.current = null
-          },
-        }
-      : {}
   return (
     <div
       ref={ref}
@@ -192,9 +140,6 @@ const MessageItem = memo(function MessageItem({
         canSelect && selected && styles.selected,
         canSelect && (role === 'user' ? styles.roundHead : styles.roundTail)
       )}
-      {...longPressHandlers}
-      // 长按时不弹系统的拷贝 / 预览菜单
-      onContextMenu={roundId !== null && !selecting ? (event) => isTouch && event.preventDefault() : undefined}
       // 多选时整轮都是一个点击区：吞掉内部按钮的点击，只做勾选
       onClickCapture={
         canSelect
@@ -202,7 +147,7 @@ const MessageItem = memo(function MessageItem({
               event.preventDefault()
               event.stopPropagation()
               haptic()
-              toggleRound(roundId)
+              onTapRound(roundId)
             }
           : undefined
       }
@@ -241,9 +186,14 @@ export const MessageList = ({
   const autoCompact = useSettings((state) => state.autoCompact)
   const selectedList = useRoundSelection((state) => state.ids)
   const selectedIds = useMemo(() => new Set(selectedList), [selectedList])
-  const onLongPressRound = useCallback(
-    (roundId: string) => startRoundSelection(session.id, roundId),
-    [session.id]
+  // 多选时点某一轮：连选模式要知道轮次的先后顺序
+  const roundOrderKey = getVisibleMessages(session)
+    .filter((message) => message.role === 'user')
+    .map((message) => message.id)
+    .join(',')
+  const onTapRound = useCallback(
+    (roundId: string) => tapRound(roundId, roundOrderKey.split(',')),
+    [roundOrderKey]
   )
   // 换会话就退出多选
   useEffect(() => {
@@ -492,6 +442,80 @@ export const MessageList = ({
 
   useEffect(closeSearchPanel, [session.id, lastMessageId])
 
+  // 编辑某条提问时：键盘弹出、编辑框变高，都把整个编辑区（含「取消 / 发送」）留在可见范围里。
+  // 编辑期间暂停贴底跟随，不然键盘一顶，列表又被拉回最底部，编辑框就被推出屏幕。
+  useEffect(() => {
+    const el = getScrollEl()
+    const column = columnRef.current
+    if (!el || !column) {
+      return
+    }
+    let editor: HTMLElement | null = null
+    let frame = 0
+    const keepVisible = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        if (!editor?.isConnected) {
+          return
+        }
+        const box = el.getBoundingClientRect()
+        // 键盘弹出时，可见区域的底部以视觉视口为准
+        const viewport = window.visualViewport
+        const visibleBottom = Math.min(box.bottom, viewport ? viewport.offsetTop + viewport.height : box.bottom)
+        const rect = editor.getBoundingClientRect()
+        const margin = 12
+        let delta = 0
+        if (rect.bottom > visibleBottom - margin) {
+          delta = rect.bottom - visibleBottom + margin
+        }
+        // 编辑区比可见高度还高时，优先保证顶部（正在打字的那几行）看得见
+        if (rect.top - delta < box.top + margin) {
+          delta = rect.top - box.top - margin
+        }
+        if (Math.abs(delta) > 0.5) {
+          el.scrollTop += delta
+          writtenTopRef.current = el.scrollTop
+          lastTopRef.current = el.scrollTop
+        }
+      })
+    }
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target
+      if (!(target instanceof HTMLTextAreaElement)) {
+        return
+      }
+      editor = target.closest<HTMLElement>('[data-msg]')?.querySelector<HTMLElement>('[data-editor]') ?? target
+      followRef.current = false
+      keepVisible()
+      // iOS 键盘动画结束后视口才稳定，再补两次
+      setTimeout(keepVisible, 300)
+      setTimeout(keepVisible, 600)
+    }
+    const onFocusOut = (event: FocusEvent) => {
+      if (event.target instanceof HTMLTextAreaElement) {
+        editor = null
+      }
+    }
+    const onChange = () => {
+      if (editor) {
+        keepVisible()
+      }
+    }
+    const observer = new ResizeObserver(onChange)
+    observer.observe(el)
+    observer.observe(column)
+    column.addEventListener('focusin', onFocusIn)
+    column.addEventListener('focusout', onFocusOut)
+    window.visualViewport?.addEventListener('resize', onChange)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      column.removeEventListener('focusin', onFocusIn)
+      column.removeEventListener('focusout', onFocusOut)
+      window.visualViewport?.removeEventListener('resize', onChange)
+    }
+  }, [getScrollEl])
+
   // 记下已经出现过的消息；首次打开会话时全部算作已出现。
   useEffect(() => {
     if (seenRef.current?.sessionId !== session.id) {
@@ -678,7 +702,7 @@ export const MessageList = ({
                   role={message.role}
                   roundId={message.role === 'user' ? message.id : (message.parentId ?? null)}
                   selecting={selecting}
-                  onLongPress={onLongPressRound}
+                  onTapRound={onTapRound}
                   selected={selecting && selectedIds.has(
                     message.role === 'user' ? message.id : (message.parentId ?? '')
                   )}

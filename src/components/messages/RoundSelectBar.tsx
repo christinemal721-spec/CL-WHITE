@@ -7,13 +7,16 @@ import { haptic } from '../../utils/haptic.js'
 import { Button } from '../base/Button.js'
 import { Modal } from '../base/Modal.js'
 import { showToast } from '../base/toastState.js'
-import { endRoundSelection, setRounds, useRoundSelection } from './roundSelection.js'
+import { endRoundSelection, setRangeMode, setRounds, useRoundSelection } from './roundSelection.js'
+import clsx from 'clsx'
 import styles from './RoundSelectBar.module.css'
 
-/** 多选删除时替换输入框的底栏：取消 / 已选数量 / 全选 / 删除（带确认）。 */
+/** 多选删除时替换输入框的底栏：取消 / 已选数量 / 连选 / 全选 / 删除（带确认）。 */
 export const RoundSelectBar = ({ session }: { session: Session }) => {
   const t = useTranslate()
   const ids = useRoundSelection((state) => state.ids)
+  const rangeMode = useRoundSelection((state) => state.rangeMode)
+  const hasAnchor = useRoundSelection((state) => state.anchor !== null)
   const busy = useChatStore((state) => Boolean(state.streaming[session.id]))
   const [confirming, setConfirming] = useState(false)
   const allIds = getVisibleMessages(session)
@@ -43,8 +46,19 @@ export const RoundSelectBar = ({ session }: { session: Session }) => {
         {t('cancel')}
       </button>
       <span className={styles.count} aria-live="polite">
-        {t('deleteRoundsSelected', { count })}
+        {rangeMode ? t('deleteRoundsRangeHint') : t('deleteRoundsSelected', { count })}
       </span>
+      {/* 连选：先点一轮，再点这里，然后点另一轮 → 中间全部选上；长对话不用一轮轮点 */}
+      <button
+        type="button"
+        className={clsx(styles.text, rangeMode && styles.textActive)}
+        data-ripple
+        aria-pressed={rangeMode}
+        disabled={!hasAnchor || allIds.length < 2}
+        onClick={() => setRangeMode(!rangeMode)}
+      >
+        {t('deleteRoundsRange')}
+      </button>
       <button
         type="button"
         className={styles.text}

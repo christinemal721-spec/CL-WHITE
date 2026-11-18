@@ -56,8 +56,6 @@
 
 .item {
   position: relative;
-  /* 长按用来进入多选：不弹系统的拷贝 / 预览菜单 */
-  -webkit-touch-callout: none;
   /* 独立格式化上下文：子元素外边距不穿透，测量高度与开启 content-visibility 后一致 */
   display: flow-root;
 }
@@ -180,7 +178,7 @@
 }
 
 .selected {
-  background: color-mix(in srgb, var(--white-accent, #d97757) 9%, transparent);
+  background: color-mix(in srgb, var(--white-accent, #8fa3ff) 9%, transparent);
 }
 
 /* 一轮（提问 + 回答）选中后连成一整块 */
@@ -199,7 +197,7 @@
   left: 34px;
   right: 14px;
   height: 1px;
-  background: color-mix(in srgb, var(--white-accent, #d97757) 14%, transparent);
+  background: color-mix(in srgb, var(--white-accent, #8fa3ff) 14%, transparent);
 }
 
 .selectMark {
@@ -219,8 +217,8 @@
 
 .selected .selectMark {
   border-color: transparent;
-  background: var(--white-accent, #d97757);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--white-accent, #d97757) 55%, transparent);
+  background: var(--white-accent, #8fa3ff);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--white-accent, #8fa3ff) 55%, transparent);
 }
 
 .selected .selectMark::after {
@@ -267,8 +265,8 @@
     background-color: transparent;
   }
   18% {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--white-accent, #c15f3c) 22%, transparent);
-    background-color: color-mix(in srgb, var(--white-accent, #c15f3c) 9%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--white-accent, #5b6cff) 22%, transparent);
+    background-color: color-mix(in srgb, var(--white-accent, #5b6cff) 9%, transparent);
   }
   100% {
     box-shadow: 0 0 0 6px transparent;

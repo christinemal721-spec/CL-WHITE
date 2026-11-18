@@ -39,6 +39,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.textActive {
+  color: var(--white-on-accent, #fff);
+  background: var(--white-accent);
+}
+
+.text:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
 .delete {
   color: #ff6b81;
   background: color-mix(in srgb, #ff6b81 12%, transparent);
