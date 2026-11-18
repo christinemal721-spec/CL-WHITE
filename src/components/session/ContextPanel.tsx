@@ -23,6 +23,8 @@ const preview = (text: string, fallback: string) => {
 }
 
 const QUICK_COUNTS = [20, 50, 100, 500, 800]
+/** 「仅最近 N 轮」的快捷按钮，从大到小 */
+const RECENT_COUNTS = [20, 10, 5]
 
 /**
  * 单窗口上下文管理：
@@ -33,6 +35,7 @@ export const ContextPanel = ({ session, onClose }: { session: Session; onClose: 
   const t = useTranslate()
   const maskRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   useExitGhost(maskRef)
   useExitGhost(panelRef)
   const rounds = useMemo(() => getContextRounds(getVisibleMessages(session)), [session])
@@ -76,6 +79,18 @@ export const ContextPanel = ({ session, onClose }: { session: Session; onClose: 
       setContextExcludedMany(session.id, olderIds, true)
     }
     setContextExcludedMany(session.id, allIds.slice(-count), false)
+    // 底下的列表滚到勾选的最后一轮，一眼看到哪些被选上了
+    const lastId = allIds.at(-1)
+    requestAnimationFrame(() => {
+      const list = listRef.current
+      const row = lastId ? list?.querySelector<HTMLElement>(`[data-round="${CSS.escape(lastId)}"]`) : null
+      if (!list || !row) {
+        return
+      }
+      // 只滚列表自己，不带动面板和整页
+      const offset = row.getBoundingClientRect().bottom - list.getBoundingClientRect().bottom
+      list.scrollTo({ top: list.scrollTop + offset, behavior: 'smooth' })
+    })
   }
 
   return (
@@ -164,15 +179,14 @@ export const ContextPanel = ({ session, onClose }: { session: Session; onClose: 
           <button type="button" onClick={() => setContextExcludedMany(session.id, allIds, true)}>
             {t('contextAllOff')}
           </button>
-          <button type="button" onClick={() => keepRecent(5)}>
-            {t('contextLast5')}
-          </button>
-          <button type="button" onClick={() => keepRecent(10)}>
-            {t('contextLast10')}
-          </button>
+          {RECENT_COUNTS.map((count) => (
+            <button key={count} type="button" onClick={() => keepRecent(count)}>
+              {t('contextLastN', { count })}
+            </button>
+          ))}
         </div>
 
-        <div className={styles.list}>
+        <div ref={listRef} className={styles.list}>
           {rounds.length === 0 ? (
             <div className={styles.empty}>{t('contextEmpty')}</div>
           ) : (
@@ -182,6 +196,7 @@ export const ContextPanel = ({ session, onClose }: { session: Session; onClose: 
               return (
                 <label
                   key={user.id}
+                  data-round={user.id}
                   className={clsx(styles.row, !on && styles.off, compacted && styles.compacted)}
                 >
                   <input
