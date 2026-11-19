@@ -6,9 +6,9 @@ import {
   IconPaperclipOutline16,
   IconSendOutline16,
   IconStopFill16,
+  IconThinkOutline14,
 } from '../base/icons.js'
-import { setSearch, useSettings } from '../../services/settings.js'
-import { ModelPicker } from './ModelPicker.js'
+import { setSearch, setThinking, useSettings } from '../../services/settings.js'
 import { useIsMobile } from '../../app/viewport.js'
 import { sendMessage, stopReply, useChatStore } from '../../services/chat/store.js'
 import {
@@ -31,7 +31,6 @@ import { ACCEPT, useUploads } from '../../services/attachments.js'
 import { DraftAttachments } from './DraftAttachments.js'
 import { useVoiceInput } from './useVoiceInput.js'
 import { VoiceButton } from './VoiceButton.js'
-import { VOICE_ENABLED } from '../../services/api/speech.js'
 import { Spectrum } from './Spectrum.js'
 import { useTranslate } from '../../i18n/index.js'
 import styles from './ChatInput.module.css'
@@ -53,6 +52,7 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
   const streaming = useChatStore(
     (state) => sessionId !== null && Object.hasOwn(state.streaming, sessionId)
   )
+  const thinking = useSettings((state) => state.thinking)
   const importingHistory = useChatStore((state) => state.importingHistory)
   const isMobile = useIsMobile()
   const search = useSettings((state) => state.search)
@@ -217,9 +217,20 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
         </div>
       </div>
       <div className={styles.functionRow}>
-        {/* 模型选择（含「显示思考过程」）/ 智能搜索开关 */}
+        {/* 深度思考 / 智能搜索开关，tooltip 在按钮上方 */}
         <div ref={togglesRef} className={styles.toggles}>
-          <ModelPicker className={styles.toggle} labelClassName={styles.toggleLabel} />
+          <Tooltip content={t('deactivatedThinkTooltip')}>
+            <button
+              type="button"
+              className={clsx(styles.toggle, thinking && styles.selected)}
+              aria-label={t('thinkingSwitch')}
+              aria-pressed={thinking}
+              onClick={() => setThinking(!thinking)}
+            >
+              <IconThinkOutline14 />
+              <span className={styles.toggleLabel}>{t('thinkingSwitch')}</span>
+            </button>
+          </Tooltip>
           <Tooltip content={t('deactivatedSearchTooltip')}>
             <button
               type="button"
@@ -234,7 +245,6 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
           </Tooltip>
         </div>
         <div className={styles.right}>
-          {VOICE_ENABLED ? (
           <VoiceButton
             status={voice.status}
             disabled={!voice.available}
@@ -248,7 +258,6 @@ const Input = ({ sessionId }: { sessionId: string | null }) => {
               }
             }}
           />
-          ) : null}
           <IconButton
             size="m"
             tone="primary"

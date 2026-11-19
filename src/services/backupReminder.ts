@@ -5,9 +5,9 @@ import { create } from 'zustand'
  * 「导出过」包括设置里的导出全部、自动备份写入文件或存到「文件」；单个对话的导出不算。
  * 新用户从第一次打开开始算，不会一上来就提醒。
  */
-const LAST_KEY = 'cl-white:last-export'
-const FIRST_KEY = 'cl-white:first-seen'
-const SNOOZE_KEY = 'cl-white:backup-snooze'
+const LAST_KEY = 'chat-demo:last-export'
+const FIRST_KEY = 'chat-demo:first-seen'
+const SNOOZE_KEY = 'chat-demo:backup-snooze'
 
 export const REMIND_DAYS = 7
 const SNOOZE_DAYS = 2

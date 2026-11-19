@@ -1,20 +1,6 @@
 import type { zh } from './zh.js'
 
 export const en = {
-  settingsModel: 'Model',
-  settingsModelDescription:
-    'Opus 5.5 suits most chats; Sonnet 5.5 costs half as much; Haiku 5.5 is fastest and cheapest; Fable 5.2 is the strongest and priciest. Billed at Anthropic list prices.',
-  modelOpus: 'Opus 5.5',
-  modelSonnet: 'Sonnet 5.5',
-  modelHaiku: 'Haiku 5.5',
-  modelFable: 'Fable 5.2',
-  modelOpusDesc: 'The default for most chats',
-  modelSonnetDesc: 'Faster, about half the price',
-  modelHaikuDesc: 'Fastest and cheapest, for light questions',
-  modelFableDesc: 'Strongest, for hard problems; priciest',
-  showThinking: 'Show thinking',
-  showThinkingDesc: 'The model thinks when it needs to; this only controls whether you see it',
-
   welcomeMessageChat250808: 'How can I help you?',
   contentCaveat: 'AI-generated, for reference only',
   expandSiderbarButton: 'Open sidebar',
@@ -36,8 +22,8 @@ export const en = {
   whiteDays: '{d}d {h}h',
   whiteHours: '{h}h {m}m',
   whiteMinutes: '{m} min',
-  whiteSignatureAlt: 'CL WHITE signature',
-  appName: 'CL WHITE',
+  whiteSignatureAlt: 'Signature of Chris and WHITE',
+  appName: 'WHITE',
   deleteSessionModalContentTitle: 'Delete chat?',
   deleteSessionWithFilesDescription:
     'This chat and its uploaded files will be permanently deleted and cannot be recovered. Delete this chat?',
@@ -52,7 +38,7 @@ export const en = {
   sessionExportMarkdown: 'Markdown',
   sessionExportMarkdownDescription: 'Easy to read, share or keep in notes; includes thinking, images are kept as file names.',
   sessionExportZip: 'zip',
-  sessionExportZipDescription: 'Same format as a full backup; can be imported on another device (CL WHITE or DS WHITE). Note: importing replaces all chats there.',
+  sessionExportZipDescription: 'Same format as a full backup; can be imported elsewhere. Note: importing replaces all chats there.',
   sessionExportGenerate: 'Generate',
   sessionExportGenerating: 'Generating…',
   sessionExportSave: 'Save',
@@ -86,8 +72,23 @@ export const en = {
   introLocal:
     'This is a 【local】 web tool. Make a habit of 【exporting your chat history (zip file)】 anytime, anywhere, so a browser cache cleanup cannot wipe it.',
   introUpdate:
-    'First 【export your chat history】, then remove the home-screen / desktop shortcut (this also clears local chats), reopen the CL WHITE site and refresh to get the latest version. After adding it back, import the zip in Settings to restore every chat.',
-  introFree: 'This web app is free to use; API usage is billed by Anthropic (top up on the Claude Developer Platform).',
+    'First 【export your chat history】, then remove the home-screen / desktop shortcut (this also clears local chats), reopen the demo site and refresh to get the latest version. After adding it back, import the zip in Settings to restore every chat.',
+  introFree: 'This web app is completely free to use; API fees are charged by the LLM (large language model) provider.',
+  updateTitle: 'What’s new in V{version}',
+  updateSubtitle: 'A quick look at what changed',
+  updateLongPressTitle: 'Long-press delete removed',
+  updateLongPress: 'Long-press no longer starts multi-select delete. To delete: 【“⋯” → “Select to delete”】 under a question.',
+  updateExportTitle: 'Export a single chat',
+  updateExport: 'In the sidebar, 【“⋯” → “Export”】 saves one chat as Markdown or zip.',
+  updatePinTitle: 'Pin chats',
+  updatePin: 'Sidebar “⋯” → “Pin” keeps a chat at the top.',
+  updateRangeTitle: 'Range select',
+  updateRange: 'In multi-select, tap “Range”, then another round to select everything between.',
+  updateEditTitle: 'Smoother editing',
+  updateEdit: 'Pasting works, and the keyboard no longer hides the editor.',
+  updateFlashTitle: 'A quick flash is normal',
+  updateFlash: 'The site just updated and reloaded; replies in progress and drafts are never interrupted.',
+  updateConfirm: 'Got it',
   introConfirm: 'Got it',
   settingsAutoCompact: 'Auto-compact context',
   settingsAutoCompactDescription:
@@ -118,9 +119,9 @@ export const en = {
   historySearchBack: 'Back',
   siderAbout: 'Contact',
   aboutTitle: 'Contact the author',
-  aboutVersionTitle: 'About V2',
+  aboutVersionTitle: 'About V1',
   aboutPurpose:
-    'CL WHITE V2 is the Claude edition of WHITE (V1 is DS WHITE, the DeepSeek edition). It keeps the same clean 【local web setup】: it talks directly to the Claude API, and chats and attachments stay on your own device.',
+    'DS WHITE V1 is a clean, function-only release. It aims to be a 【solution】 that relies entirely on the web page and the user\'s own local files.',
   aboutNoMore:
     'To keep the browser cache as stable as possible, apart from polishing the UI and fixing necessary bugs, 【no】 further features will be added, including but not limited to:',
   aboutExcludedLabel: 'Features that will not be added',
@@ -143,7 +144,7 @@ export const en = {
   devCredits: 'Credits',
   devCreditsDescription: 'Tools used to build this app, and copyright',
   devCreditsView: 'View',
-  balanceNote: 'Balance lookup and links only support the DeepSeek API for now; other models still work',
+  balanceNote: 'Balance lookup and top-up only support the official DeepSeek API',
   deleteRound: 'Delete this round',
   deleteRoundsToolbar: 'Delete messages',
   deleteRoundsSelected: '{count} selected',
@@ -209,7 +210,7 @@ export const en = {
   groupTitleToolOpen: 'Browsing the web',
   messageThinking: 'Thinking',
   backupInvalidJson: 'The file is not valid JSON.',
-  backupUnrecognized: 'File not recognized. Please choose a chat history ZIP exported from CL WHITE, DS WHITE or DeepSeek.',
+  backupUnrecognized: 'File not recognized. Please choose a DeepSeek chat history ZIP.',
   backupNewerVersion: 'This file uses a newer version. Please update the app before importing.',
   backupInvalidVersion: 'The file version is invalid and cannot be imported.',
   backupIncomplete: 'The file is incomplete and cannot be imported.',
@@ -261,7 +262,8 @@ export const en = {
   historyImportConfirmTitle: 'Import chat history?',
   historyImportConfirmDescription:
     'The uploaded chat history will replace all your current chats. Import anyway?',
-  historyImportDescription: 'Importing chat history replaces all local chats and attachments. Supports ZIP files exported from CL WHITE, DS WHITE and DeepSeek.',
+  historyImportDescription:
+    'Importing chat history replaces all local chats and attachments. Supports ZIP files exported from DeepSeek.',
   historyImportedOne: 'Imported 1 chat',
   historyImported: 'Imported {count} chats',
   historyImporting: 'Importing… {percent}% (large files take a few minutes; keep this page open)',
@@ -269,7 +271,8 @@ export const en = {
   historyImportSkipSnapshotConfirm: 'Import anyway',
   historyImportSkipSnapshotDescription:
     'Your current chats are too large to back up automatically before importing (not enough storage or memory). To keep them, cancel and download them with “Export all chats” first, or import and overwrite now.',
-  historyImportFailed: 'File import failed. The file format may be invalid, or the ZIP may use an older export format. Please export your chat history again and retry.',
+  historyImportFailed:
+    'File import failed. The file format may be invalid, or the ZIP file may use an older chat export format. Please export your chat history from DeepSeek again and retry the import.',
   historyExportFailed: 'Export failed: {message}',
   exportAllLabel: 'Export all chats',
   historyExportDescription:

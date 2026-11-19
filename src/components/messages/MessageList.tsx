@@ -254,6 +254,54 @@ export const MessageList = ({
   const messageCountRef = useRef(messages.length)
   messageCountRef.current = messages.length
 
+  // 删除轮次后，上方会补进更早的消息（只渲染最近若干条），内容整体下移，画面就跳了。
+  // 渲染时发现有消息被删：趁旧 DOM 还在，记下屏幕顶部第一条留下来的消息和它的位置，提交后放回原处。
+  const knownIdsRef = useRef<{ sessionId: string; ids: Set<string> } | null>(null)
+  const deleteAnchorRef = useRef<{ id: string; top: number } | null>(null)
+  const known = knownIdsRef.current
+  if (known?.sessionId === session.id && !deleteAnchorRef.current) {
+    const now = new Set(messages.map((message) => message.id))
+    let removed = false
+    for (const id of known.ids) {
+      if (!now.has(id)) {
+        removed = true
+        break
+      }
+    }
+    const el = removed ? (isMobile ? scrollMobileRef.current : containerRef.current) : null
+    if (el) {
+      // 基准选删掉那几轮上方、完整露出来的最后一条：上面不动，下面的内容往上补位（和系统列表删除一样）。
+      // 屏幕上方没有完整露出的就用半露的那条；被删的不在屏幕上，就用顶部第一条完整露出的。
+      const box = el.getBoundingClientRect()
+      let above: { id: string; top: number } | null = null
+      let partial: { id: string; top: number } | null = null
+      let first: { id: string; top: number } | null = null
+      let removedInView = false
+      for (const node of el.querySelectorAll<HTMLElement>('[data-msg]')) {
+        const id = node.dataset.msg
+        const rect = node.getBoundingClientRect()
+        if (!id || rect.bottom <= box.top + 1) {
+          continue
+        }
+        if (rect.top >= box.bottom) {
+          break
+        }
+        if (!now.has(id)) {
+          removedInView = true
+          break
+        }
+        const spot = { id, top: rect.top - box.top }
+        if (rect.top >= box.top - 1) {
+          above = spot
+          first ??= spot
+        } else {
+          partial = spot
+        }
+      }
+      deleteAnchorRef.current = removedInView ? (above ?? partial) : (first ?? partial)
+    }
+  }
+
   const getScrollEl = useCallback(
     () => (isMobile ? scrollMobileRef.current : containerRef.current),
     [isMobile]
@@ -439,6 +487,28 @@ export const MessageList = ({
       prependRef.current = null
     }
   }, [visibleCount, getScrollEl])
+
+  // 删除后把记下的那条消息放回原来的位置
+  useLayoutEffect(() => {
+    knownIdsRef.current = { sessionId: session.id, ids: new Set(messages.map((message) => message.id)) }
+    const anchor = deleteAnchorRef.current
+    deleteAnchorRef.current = null
+    const el = getScrollEl()
+    if (!anchor || !el) {
+      return
+    }
+    const node = el.querySelector<HTMLElement>(`[data-msg="${CSS.escape(anchor.id)}"]`)
+    if (!node) {
+      return
+    }
+    const delta = node.getBoundingClientRect().top - el.getBoundingClientRect().top - anchor.top
+    if (Math.abs(delta) > 0.5) {
+      el.scrollTop += delta
+      writtenTopRef.current = el.scrollTop
+      lastTopRef.current = el.scrollTop
+    }
+    followRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < STICKY_THRESHOLD
+  })
 
   useEffect(closeSearchPanel, [session.id, lastMessageId])
 

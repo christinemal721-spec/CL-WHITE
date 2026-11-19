@@ -1,13 +1,13 @@
 {
-  "name": "CL WHITE",
-  "short_name": "CL WHITE",
-  "description": "CL WHITE: a local web client for the Claude API.",
+  "name": "WHITE",
+  "short_name": "WHITE",
+  "description": "White's single conversation.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f0e6",
-  "theme_color": "#f5f0e6",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "icons/icon-192.png",

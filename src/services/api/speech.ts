@@ -6,9 +6,6 @@ import { ApiError, API_ORIGIN, request } from './client.js'
  * - TTS：POST /v1/tools/tts，返回音频字节流（产出首帧后即返回 200）
  * 鉴权都用 Authorization: Bearer。
  */
-/** Claude API 没有语音识别和朗读接口，语音输入、朗读按钮先隐藏 */
-export const VOICE_ENABLED = false
-
 const TOOLS_BASE_URL = `${API_ORIGIN}/v1/tools`
 
 export type TtsVoice = 'stella' | 'tide'

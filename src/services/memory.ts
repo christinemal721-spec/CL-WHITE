@@ -55,7 +55,7 @@ type MemoryState = MemorySettings & {
   reset: () => void
 }
 
-const KEY = 'cl-white:memory'
+const KEY = 'chat-demo:memory'
 
 const defaults = (): MemorySettings => ({
   persona: DEFAULT_PERSONA,

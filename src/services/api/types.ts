@@ -4,15 +4,7 @@
  * 声明 deepseek_web_search / deepseek_read_url 或设置 safety_check.level 为 high 时进入扩展模式。
  */
 
-export type ChatModel = 'claude-opus-5-5' | 'claude-sonnet-5-5' | 'claude-haiku-5-5' | 'claude-fable-5-2'
-
-/** 可选模型，按推荐顺序 */
-export const CHAT_MODELS: ChatModel[] = [
-  'claude-opus-5-5',
-  'claude-sonnet-5-5',
-  'claude-haiku-5-5',
-  'claude-fable-5-2',
-]
+export type ChatModel = 'deepseek-flash' | 'deepseek-v4-pro'
 
 // ---------- 响应：内容块 ----------
 

@@ -454,3 +454,73 @@
   font-size: 0.75em;
   line-height: 0;
 }
+
+/* LaTeX 文字卡片的网页排版版本：KaTeX 版放不下时改用它，文字能自动换行（见 textCard.ts） */
+.ds-markdown .ds-markdown-math.ds-tex-wrap {
+  display: block;
+  max-width: 100%;
+  margin: 16px 0;
+}
+.ds-tex-card {
+  display: block;
+  max-width: 100%;
+  font-size: 1.05em;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.ds-tex-card.is-framed {
+  padding: 0.7em 1em;
+  border-radius: 6px;
+}
+.ds-markdown .ds-tex-card table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+}
+.ds-markdown .ds-tex-card td {
+  padding: 0.12em 0;
+  border: none;
+  font: inherit;
+  max-width: none;
+  min-width: 0;
+  vertical-align: top;
+}
+.ds-markdown .ds-tex-card td + td {
+  padding-left: 1em;
+}
+.ds-markdown .ds-tex-card tr.is-ruled td {
+  border-top: 1px solid currentColor;
+}
+.ds-markdown .ds-tex-card hr {
+  height: 0;
+  margin: 0.45em 0;
+  background: none;
+  border: none;
+  border-top: 2px solid currentColor;
+  opacity: 0.9;
+}
+.ds-tex-split {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 1em;
+}
+.ds-tex-split > :last-child {
+  margin-left: auto;
+  text-align: right;
+}
+.ds-tex-mark {
+  padding: 0 0.25em;
+  border-radius: 3px;
+}
+.ds-tex-mark.is-framed {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.ds-tex-card .katex {
+  font-size: 1em;
+}
+.ds-markdown .ds-tex-card tr.ds-tex-empty td {
+  height: 0.6em;
+  padding: 0;
+}

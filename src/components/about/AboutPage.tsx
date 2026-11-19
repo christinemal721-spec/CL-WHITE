@@ -105,7 +105,7 @@ export const AboutPage = () => {
         <div ref={bodyRef} className={styles.body}>
           <div className={styles.hero}>
             <Signature width={132} motion="still" alt={t('appName')} />
-            <div className={styles.version}>CL WHITE · V2</div>
+            <div className={styles.version}>DS WHITE · V1</div>
           </div>
 
           <section className={clsx(styles.card, 'white-glass')}>
@@ -128,7 +128,7 @@ export const AboutPage = () => {
             <div className={styles.mail}>
               <a
                 className={styles.mailLink}
-                href={`mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('CL WHITE 反馈')}`}
+                href={`mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent('DS WHITE 反馈')}`}
                 tabIndex={open ? 0 : -1}
               >
                 <span className={styles.mailLabel}>{t('aboutEmailLabel')}</span>

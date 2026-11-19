@@ -12,7 +12,7 @@ import { useChatStore } from './chat/store.js'
  * 对话都在 IndexedDB 里，刷新不会丢；只有没发出去的草稿在内存里，所以有草稿时不刷新。
  */
 
-const RELOAD_KEY = 'cl-white:stale-reload'
+const RELOAD_KEY = 'chat-demo:stale-reload'
 const RELOAD_GUARD_MS = 60_000
 /** 切回页面后这么久之内，用户还没开始操作，可以直接刷新 */
 const RESUME_WINDOW_MS = 4_000
