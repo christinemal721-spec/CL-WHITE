@@ -14,7 +14,11 @@ export type ApiErrorCondition =
   | 'other'
 
 /** 按 HTTP 状态码归类；没有状态码（请求没到达服务端）时按网络问题处理 */
-export const classifyStatus = (status: number | undefined): ApiErrorCondition => {
+export const classifyStatus = (status: number | undefined, message = ''): ApiErrorCondition => {
+  // Claude 余额不足返回 400，只能从报错文案里认
+  if (status === 400 && /credit balance is too low/i.test(message)) {
+    return 'insufficientBalance'
+  }
   if (status === 401) {
     return 'unauthorized'
   }
@@ -40,7 +44,7 @@ export const classifyApiError = (error: unknown): ApiErrorCondition => {
   if (error.status === undefined) {
     return error.kind === 'network' ? 'network' : 'other'
   }
-  return classifyStatus(error.status)
+  return classifyStatus(error.status, error.message)
 }
 
 /** 重试可能成功的情况：网络、限流、服务端繁忙；参数或鉴权类错误重试无用 */

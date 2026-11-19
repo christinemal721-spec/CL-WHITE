@@ -182,7 +182,7 @@ export const summarizeRounds = async (
     const events = streamMessage(
       apiKey,
       {
-        model: 'deepseek-flash',
+        model: 'claude-haiku-5-5',
         system: SUMMARIZER_SYSTEM,
         messages: [{ role: 'user', content: prompt }],
         thinking: { type: 'disabled' },

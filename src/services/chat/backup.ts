@@ -17,7 +17,7 @@ const enqueueBackup = <T>(run: () => Promise<T>): Promise<T> => {
   return task
 }
 
-const backupFileName = (date: Date) => `deepseek_data-${formatDate(date)}.zip`
+const backupFileName = (date: Date) => `cl-white_data-${formatDate(date)}.zip`
 
 const createHistoryExport = async (
   only?: string
@@ -43,7 +43,7 @@ const createHistoryExport = async (
   const now = new Date()
   const blob = await exportArchive(readSessions())
   if (only) {
-    const name = `deepseek_data-${safeFileName(sessions[0]?.title ?? '')}-${formatDate(now)}.zip`
+    const name = `cl-white_data-${safeFileName(sessions[0]?.title ?? '')}-${formatDate(now)}.zip`
     return { name, blob }
   }
   return { name: backupFileName(now), blob }

@@ -20,7 +20,6 @@ import { AboutPage } from '../components/about/AboutPage.js'
 import { HistorySearchPage } from '../components/historySearch/HistorySearchPage.js'
 import { BackupPrompt } from '../components/base/BackupPrompt.js'
 import { IntroNotice } from '../components/base/IntroNotice.js'
-import { UpdateNotice } from '../components/base/UpdateNotice.js'
 import { Toast } from '../components/base/Toast.js'
 import { showToast } from '../components/base/toastState.js'
 import { onUploadNotice } from '../services/attachments.js'
@@ -144,7 +143,6 @@ export const App = () => {
       <HistorySearchPage />
       <AboutPage />
       <IntroNotice />
-      <UpdateNotice />
     </>
   )
 }

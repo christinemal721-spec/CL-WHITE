@@ -20,14 +20,14 @@ import {
 import { markExported } from '../../services/backupReminder.js'
 import { recoverFromStaleChunk } from '../../services/pwa.js'
 import { useChatStore } from '../../services/chat/store.js'
-import { fetchBalance, type BalanceInfo } from '../../services/api/client.js'
+import { CHAT_MODELS, type ChatModel } from '../../services/api/types.js'
 import { regionCodes, getRegionName, provinces } from '../../services/location.js'
 import {
   isChineseBrowser,
   setLocale,
   setLocation,
   setThemePreference,
-  setTtsVoice,
+  setModel,
   setFontSize,
   setSoundEffects,
   setAutoCollapseThinking,
@@ -143,14 +143,13 @@ const SettingsContent = () => {
               <AutoCollapseThinkingSetting />
               <AutoCompactSetting />
               <SoundEffectsSetting />
-              <TtsVoiceSetting />
               <LocationSetting />
               <DevCreditsSetting />
             </>
           ) : (
             <>
               <ApiKeyField editor={apiKeyEditor} />
-              <BalanceSetting />
+              <ModelSetting />
               <ImportHistory historyImport={historyImport} disabled={historyBusy} />
               <ExportHistory disabled={historyBusy} />
               <AutoBackupSetting />
@@ -529,27 +528,6 @@ const SoundEffectsSetting = () => {
 }
 
 /** 朗读音色：tide（暗潮，男声，默认）/ stella（海星，女声） */
-const TtsVoiceSetting = () => {
-  const t = useTranslate()
-  const ttsVoice = useSettings((state) => state.ttsVoice)
-  return (
-    <SettingCell
-      label={t('settingsTtsVoice')}
-      status={null}
-      action={
-        <Select
-          ariaLabel={t('settingsTtsVoice')}
-          value={ttsVoice}
-          options={[
-            { value: 'tide', label: t('settingsTtsVoiceTide') },
-            { value: 'stella', label: t('settingsTtsVoiceStella') },
-          ]}
-          onChange={setTtsVoice}
-        />
-      }
-    />
-  )
-}
 
 /** 覆盖导入的二次确认，叠在设置弹窗上 */
 const ImportConfirm = ({
@@ -868,73 +846,33 @@ const SettingCell = ({
   )
 }
 
-/** 查询账户余额，并提供 DeepSeek 充值入口。 */
-const BalanceSetting = () => {
+/** 选择对话用的 Claude 模型；价格写在说明里，方便对比 */
+const ModelSetting = () => {
   const t = useTranslate()
-  const apiKey = useSettings((state) => state.apiKey)
-  const [busy, setBusy] = useState(false)
-  const [status, setStatus] = useState<Status>(null)
-  const [info, setInfo] = useState<BalanceInfo | null>(null)
-
-  const query = async () => {
-    if (!apiKey) {
-      return
-    }
-    setBusy(true)
-    setStatus(null)
-    try {
-      const result = await fetchBalance(apiKey)
-      setInfo(result)
-      if (!result.is_available) {
-        setStatus({ key: 'balanceUnavailable' })
-      } else if (!result.balance_infos?.length) {
-        setStatus({ key: 'balanceEmpty' })
-      }
-    } catch (error) {
-      setInfo(null)
-      setStatus(errorStatus('balanceFailed', error))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const balances = info?.balance_infos ?? []
+  const model = useSettings((state) => state.model)
   return (
     <SettingCell
-      label={t('balance')}
-      note={t('balanceNote')}
-      description={
-        balances.length
-          ? balances.map((item) => `${item.currency} ${item.total_balance}`).join(' · ')
-          : t('balanceDescription')
-      }
-      status={status}
+      label={t('settingsModel')}
+      description={t('settingsModelDescription')}
+      status={null}
       action={
-        <>
-          <Button
-            variant="outlined"
-            size="m"
-            className={styles.cellButton}
-            disabled={busy || !apiKey}
-            onClick={() => void query()}
-          >
-            {busy ? t('balanceQuerying') : t('balanceQuery')}
-          </Button>
-          <Button
-            variant="outlined"
-            size="m"
-            className={styles.cellButton}
-            onClick={() =>
-              window.open('https://platform.deepseek.com/top_up', '_blank', 'noopener')
-            }
-          >
-            {t('topUp')}
-          </Button>
-        </>
+        <Select
+          ariaLabel={t('settingsModel')}
+          value={model}
+          options={CHAT_MODELS.map((value: ChatModel) => ({ value, label: t(MODEL_LABELS[value]) }))}
+          onChange={setModel}
+        />
       }
     />
   )
 }
+
+const MODEL_LABELS = {
+  'claude-opus-5-5': 'modelOpus',
+  'claude-sonnet-5-5': 'modelSonnet',
+  'claude-haiku-5-5': 'modelHaiku',
+  'claude-fable-5-2': 'modelFable',
+} as const
 
 /** 选文件后先提示覆盖；确认后才检查文件并执行导入，任何错误都提示导入失败。 */
 const useHistoryImport = () => {

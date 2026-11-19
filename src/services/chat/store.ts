@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createId } from '../../utils/id.js'
-import { ApiError, streamMessage } from '../api/client.js'
+import { ApiError, createMessageText, streamMessage } from '../api/client.js'
 import type { ChatModel, CreateMessageRequest } from '../api/types.js'
 import { extractFileIds, getFileErrorCode, isRetryableApiError } from '../api/errors.js'
 import { cancelUpload, describeUploadError, uploadAttachment, useUploads } from '../attachments.js'
@@ -49,10 +49,12 @@ import {
   type UserMessage,
 } from './types.js'
 
-/** deepseek-flash 同时支持深度思考与图片输入 */
-const MODEL: ChatModel = 'deepseek-flash'
+/** 当前设置里选的模型 */
+const currentModel = (): ChatModel => useSettings.getState().model
+/** 生成对话标题用最快最便宜的模型 */
+const TITLE_MODEL: ChatModel = 'claude-haiku-5-5'
 /** 所有生成请求统一携带的助手身份说明 */
-const SYSTEM_PROMPT = '该助手为DeepSeek，由深度求索公司创造。'
+const SYSTEM_PROMPT = '该助手为Claude，由Anthropic创造。'
 /** 保留最近打开的详情；当前会话、生成中及尚未成功保存的会话不淘汰。 */
 const SESSION_CACHE_LIMIT = 5
 /** 安全审核固定开启，所有请求都走扩展模式 */
@@ -110,7 +112,7 @@ export type ContextDebug = {
   tokens: number
 }
 
-const UNREAD_KEY = 'chat-demo:unread'
+const UNREAD_KEY = 'cl-white:unread'
 
 const readUnread = (): Record<string, true> => {
   try {
@@ -358,7 +360,7 @@ const createReply = (): AssistantMessage => {
     id: createId(),
     role: 'assistant',
     createdAt: Date.now(),
-    model: MODEL,
+    model: currentModel(),
     thinking,
     search,
     prefix: true,
@@ -982,7 +984,7 @@ export const continueReply = (sessionId: string, messageId: string) => {
   const reply: AssistantMessage = {
     ...previous,
     // 未记录请求配置的回复，续写时使用默认模型和当前开关。
-    model: previous.model ?? MODEL,
+    model: previous.model ?? currentModel(),
     thinking: previous.thinking ?? thinking,
     search: previous.search ?? search,
     status: 'pending',
@@ -1321,6 +1323,44 @@ export const onReplyDone = (listener: () => void) => {
 /** 流式内容写入 store 的最短间隔；画面上的匀速吐字由 Markdown 组件负责 */
 const STREAM_FLUSH_MS = 90
 
+const replyText = (reply: AssistantMessage) =>
+  reply.blocks
+    .filter((block) => block.type === 'text' && !('isTemplate' in block && block.isTemplate))
+    .map((block) => (block as { text: string }).text)
+    .join('')
+
+/**
+ * Claude 不会顺带返回标题：第一轮回答完以后，用 Haiku 单独概括一个短标题。
+ * 失败就保持空标题（侧栏显示第一句提问），不打扰用户。
+ */
+const generateTitle = async (sessionId: string, reply: AssistantMessage) => {
+  const apiKey = useSettings.getState().apiKey
+  const question = getSession(sessionId)?.messages.find((message) => message.role === 'user')
+  if (!apiKey || !question || question.role !== 'user') {
+    return
+  }
+  try {
+    const raw = await createMessageText(apiKey, {
+      model: TITLE_MODEL,
+      max_tokens: 60,
+      system:
+        '给这段对话起一个简短的标题：不超过 14 个字（英文对话不超过 6 个词），和对话用同一种语言，不加引号、标点和解释，只输出标题本身。',
+      messages: [
+        {
+          role: 'user',
+          content: `提问：${question.content.slice(0, 1200) || '（附件）'}\n\n回答：${replyText(reply).slice(0, 1200)}`,
+        },
+      ],
+    })
+    const title = raw.trim().replace(/^["'“”「」《》]+|["'“”「」《》。.]+$/g, '').slice(0, 40)
+    if (title) {
+      updateSession(sessionId, (session) => (session.title ? session : { ...session, title }))
+    }
+  } catch {
+    // 标题只是锦上添花
+  }
+}
+
 const streamReply = async (sessionId: string, initial: AssistantMessage, request: Request) => {
   const controller = new AbortController()
   if (!getSession(sessionId)?.title) {
@@ -1403,13 +1443,12 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
         const events = streamMessage(
           useSettings.getState().apiKey ?? '',
           {
-            model: initial.model ?? MODEL,
+            model: initial.model ?? currentModel(),
             system: [SYSTEM_PROMPT, compactionText, built.system].filter(Boolean).join('\n\n'),
             messages: built.messages,
             thinking: { type: initial.thinking ? 'enabled' : 'disabled' },
             safety_check: SAFETY_CHECK,
             tools: serverTools(initial.search ?? false),
-            ...(titleRequests.has(controller) ? { title: { enabled: true } } : {}),
           },
           controller.signal
         )
@@ -1436,6 +1475,9 @@ const streamReply = async (sessionId: string, initial: AssistantMessage, request
           }
         }
         reply = settleReply(reply, 'done', Date.now())
+        if (titleRequests.has(controller) && !get().importingHistory) {
+          void generateTitle(sessionId, reply)
+        }
         break
       } catch (error) {
         if (controller.signal.aborted) {

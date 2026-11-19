@@ -1,4 +1,5 @@
 import { translate, type TranslationMessage } from '../../i18n/index.js'
+import { ClaudeStreamAdapter, toClaudeBody } from './claude.js'
 import { readMessageEvent } from './parseEvent.js'
 import { readServerSentEvents } from './sse.js'
 import type {
@@ -9,10 +10,11 @@ import type {
   MessageStreamEvent,
 } from './types.js'
 
-/** 构建期 API 地址，默认 https://api.deepseek.com；本地开发支持开发服务器代理 */
+/** 构建期 API 地址，默认 https://api.anthropic.com；本地测试可换成模拟服务 */
 export const API_ORIGIN = __API_ORIGIN__
-/** Anthropic 兼容接口的前缀 */
-const ANTHROPIC_BASE_URL = `${API_ORIGIN}/anthropic/v1`
+const ANTHROPIC_BASE_URL = `${API_ORIGIN}/v1`
+/** Claude API 版本号，所有请求必带 */
+const API_VERSION = '2023-06-01'
 /** 引用 Files API 上传的图片、调用 Anthropic 兼容 Files API 时必须携带 */
 const FILES_BETA = 'files-api-2025-04-14'
 
@@ -83,46 +85,53 @@ export const request = async (url: string, init: RequestInit): Promise<Response>
 }
 
 const anthropicHeaders = (apiKey: string, beta: boolean): Record<string, string> => ({
-  // DeepSeek 兼容接口的鉴权方式，也可使用 Authorization: Bearer。
   'x-api-key': apiKey,
-  // Files API 和通过 file_id 引用图片时必传；纯文本聊天无需携带。
+  'anthropic-version': API_VERSION,
+  // 网页直接从浏览器调用 Claude API 必须带这个头（Key 只存在本机，请求直达 api.anthropic.com）
+  'anthropic-dangerous-direct-browser-access': 'true',
+  // Files API 和通过 file_id 引用文件时必传；纯文本聊天无需携带。
   ...(beta ? { 'anthropic-beta': FILES_BETA } : {}),
 })
 
-/** 用 GET /models 校验 API Key（不产生费用） */
+/** 用 GET /v1/models 校验 API Key（不产生费用） */
 export const verifyApiKey = async (apiKey: string, signal?: AbortSignal): Promise<void> => {
-  await request(`${API_ORIGIN}/models`, {
+  await request(`${ANTHROPIC_BASE_URL}/models?limit=1`, {
     method: 'GET',
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: anthropicHeaders(apiKey, false),
     signal,
   })
 }
 
-export type BalanceItem = {
-  currency: string
-  total_balance: string
-  granted_balance: string
-  topped_up_balance: string
-}
-
-export type BalanceInfo = {
-  is_available: boolean
-  balance_infos?: BalanceItem[]
-}
-
-/** 查询账户余额（不产生费用）。 */
-export const fetchBalance = async (apiKey: string, signal?: AbortSignal): Promise<BalanceInfo> => {
-  const response = await request(`${API_ORIGIN}/user/balance`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiKey}` },
+/** 不需要流式的小请求（如生成对话标题），返回拼好的正文 */
+export const createMessageText = async (
+  apiKey: string,
+  body: { model: string; max_tokens: number; system?: string; messages: unknown[] },
+  signal?: AbortSignal
+): Promise<string> => {
+  const response = await request(`${ANTHROPIC_BASE_URL}/messages`, {
+    method: 'POST',
+    headers: { ...anthropicHeaders(apiKey, false), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
     signal,
   })
-  return (await response.json()) as BalanceInfo
+  const data = (await response.json()) as { content?: { type: string; text?: string }[] }
+  return (data.content ?? [])
+    .filter((block) => block.type === 'text')
+    .map((block) => block.text ?? '')
+    .join('')
+}
+
+/** 文本类附件（代码、表格、Markdown 等）统一按纯文本上传，Claude 的文档块只认 PDF 和纯文本 */
+const asUploadable = (file: File, purpose: FilePurpose | null): File => {
+  if (purpose === null || file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+    return file
+  }
+  return new File([file], file.name, { type: 'text/plain' })
 }
 
 /**
- * POST /anthropic/v1/files 上传附件（不设过期时间，会话里的历史附件一直可用）。
- * purpose 为 null 时不传该字段（图片）；purpose 必须排在 file 之前。
+ * POST /v1/files 上传附件（Files API，beta）。
+ * 图片按原样上传；PDF 按 PDF；其余文本类文件按纯文本。
  */
 export const uploadFile = async (
   apiKey: string,
@@ -131,10 +140,7 @@ export const uploadFile = async (
   signal?: AbortSignal
 ): Promise<FileObject> => {
   const form = new FormData()
-  if (purpose) {
-    form.append('purpose', purpose)
-  }
-  form.append('file', file)
+  form.append('file', asUploadable(file, purpose))
   const response = await request(`${ANTHROPIC_BASE_URL}/files`, {
     method: 'POST',
     headers: anthropicHeaders(apiKey, true),
@@ -144,7 +150,7 @@ export const uploadFile = async (
   return (await response.json()) as FileObject
 }
 
-/** DELETE /anthropic/v1/files/{file_id} */
+/** DELETE /v1/files/{file_id} */
 export const deleteFile = async (apiKey: string, fileId: string): Promise<void> => {
   await request(`${ANTHROPIC_BASE_URL}/files/${encodeURIComponent(fileId)}`, {
     method: 'DELETE',
@@ -160,7 +166,7 @@ const hasFile = (body: CreateMessageRequest) =>
   )
 
 /**
- * POST /anthropic/v1/messages（stream: true），逐个产出流式事件，收到 message_stop 时结束。
+ * POST /v1/messages（stream: true），逐个产出流式事件，收到 message_stop 时结束。
  * ping、保活注释与无法解析的内容不产出；中止请求时抛出 signal 的 AbortError。
  */
 export async function* streamMessage(
@@ -175,13 +181,14 @@ export async function* streamMessage(
       'Content-Type': 'application/json',
       Accept: 'text/event-stream',
     },
-    body: JSON.stringify({ ...body, stream: true }),
+    body: JSON.stringify(toClaudeBody(body)),
     signal,
   })
   const contentType = response.headers.get('Content-Type') ?? ''
   if (!response.body || !contentType.includes('text/event-stream')) {
     throw await readErrorResponse(response, 'protocol', '')
   }
+  const adapter = new ClaudeStreamAdapter(body.thinking.type === 'enabled')
   for await (const { event: eventName, data } of readServerSentEvents(response.body, signal)) {
     let payload: unknown
     try {
@@ -197,13 +204,15 @@ export async function* streamMessage(
     if (eventName === 'error') {
       throw new ApiError('stream', data)
     }
-    const event = readMessageEvent(payload)
-    if (!event) {
-      continue
-    }
-    yield event
-    if (event.type === 'message_stop') {
-      return
+    for (const adapted of adapter.push(payload)) {
+      const event = readMessageEvent(adapted)
+      if (!event) {
+        continue
+      }
+      yield event
+      if (event.type === 'message_stop') {
+        return
+      }
     }
   }
   // 服务端没有提供错误内容时保持为空，不推测断流原因。

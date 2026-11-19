@@ -1,6 +1,6 @@
-/* WHITE PWA shell cache. API requests are never cached; only same-origin app assets. */
-const PREFIX = 'white-pwa-'
-const CACHE = PREFIX + 'v68'
+/* CL WHITE PWA shell cache. API requests are never cached; only same-origin app assets. */
+const PREFIX = 'cl-white-pwa-'
+const CACHE = PREFIX + 'v6'
 const SHELL = [
   './',
   './index.html',
@@ -36,8 +36,8 @@ self.addEventListener('fetch', (event) => {
     return
   }
   const url = new URL(request.url)
-  // 同一个域名下可能还部署着 CL WHITE，清理缓存时只删自己前缀的。
-  // 只接管同源壳；DeepSeek API 与跨域请求交给网络，避免缓存对话结果。
+  // 只接管同源壳；Claude API 与跨域请求交给网络。
+  // 同一个域名下可能还部署着别的应用（如 DS WHITE），清理缓存时只删自己前缀的，避免缓存对话结果。
   if (url.origin !== self.location.origin) {
     return
   }

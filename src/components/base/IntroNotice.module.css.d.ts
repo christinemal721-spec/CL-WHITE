@@ -6,10 +6,8 @@ declare const styles: {
   readonly "motto": string;
   readonly "body": string;
   readonly "item": string;
-  readonly "compact": string;
-  readonly "itemTitle": string;
-  readonly "itemKey": string;
   readonly "icon": string;
   readonly "itemBody": string;
+  readonly "itemTitle": string;
 };
 export = styles;

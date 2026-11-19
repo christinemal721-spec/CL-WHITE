@@ -35,7 +35,7 @@
   font-weight: 400;
   font-style: italic;
   letter-spacing: 0.06em;
-  color: var(--white-accent, #5b6cff);
+  color: var(--white-accent, #c15f3c);
 }
 
 .body {
@@ -53,32 +53,10 @@
   gap: 12px;
   padding: 12px 14px 12px 12px;
   border-radius: 16px;
-  background: color-mix(in srgb, var(--white-accent, #5b6cff) 5%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white-accent, #5b6cff) 14%, transparent);
+  background: color-mix(in srgb, var(--white-accent, #c15f3c) 5%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white-accent, #c15f3c) 14%, transparent);
   animation: intro-item-in 460ms var(--white-ease-out) both;
   animation-delay: calc(620ms + var(--i) * 90ms);
-}
-
-/* 更新公告：条目多，排得紧一点；最要紧的几条描边更亮 */
-.compact {
-  gap: 8px;
-  /* 小屏（如 iPhone SE）放不下时只滚动列表，「知道了」始终露在外面 */
-  max-height: calc(100dvh - 250px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  .item {
-    padding: 9px 12px 9px 10px;
-  }
-
-  .itemTitle {
-    margin-top: 2px;
-  }
-}
-
-.itemKey {
-  background: color-mix(in srgb, var(--white-accent, #5b6cff) 11%, transparent);
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--white-accent, #5b6cff) 45%, transparent);
 }
 
 @keyframes intro-item-in {
@@ -96,7 +74,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  color: var(--white-accent, #5b6cff);
+  color: var(--white-accent, #c15f3c);
 }
 
 .itemBody {

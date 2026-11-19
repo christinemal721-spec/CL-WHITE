@@ -8,7 +8,7 @@ import type { Session } from './types.js'
  */
 export const sessionToMarkdown = (session: Session, untitled: string): string => {
   const title = session.title || untitled
-  const lines = [`# ${title}`, '', `> 导出自 DS WHITE · ${formatDate(new Date())}`, '']
+  const lines = [`# ${title}`, '', `> 导出自 CL WHITE · ${formatDate(new Date())}`, '']
   for (const message of getVisibleMessages(session)) {
     lines.push('---', '')
     if (message.role === 'user') {
@@ -21,7 +21,7 @@ export const sessionToMarkdown = (session: Session, untitled: string): string =>
       }
       continue
     }
-    lines.push('### DeepSeek', '')
+    lines.push('### Claude', '')
     const thinking = message.blocks
       .flatMap((block) => (block.type === 'thinking' && block.thinking.trim() ? [block.thinking.trim()] : []))
       .join('\n\n')

@@ -279,10 +279,6 @@ const unescapeMarkdown = (source: string) => {
 const EATEN_TAB =
   /\t(ext(?:color|bf|it|rm|sf|tt|normal|up)?|imes|frac|heta|au|ilde|an|ag|op|riangle|herefore|extstyle)(?![A-Za-z])/g
 
-/** 卡片转网页排版前的清理：去零宽字符、修回 \t、还原 Markdown 转义（和 fixLatex 开头一样） */
-export const cleanCardSource = (input: string): string =>
-  unescapeMarkdown(input.replace(ZERO_WIDTH, '').replace(EATEN_TAB, '\\t$1'))
-
 export const fixLatex = (input: string): string => {
   let source = input.replace(ZERO_WIDTH, '').replace(EATEN_TAB, '\\t$1')
   if (isCard(source)) {

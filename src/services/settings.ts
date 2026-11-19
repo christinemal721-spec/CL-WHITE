@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { TtsVoice } from './api/speech.js'
+import { CHAT_MODELS, type ChatModel } from './api/types.js'
 import { normalizeLocation, type UserLocation } from './location.js'
 
 export type Locale = 'zh-CN' | 'en-US'
@@ -15,6 +16,8 @@ const FONT_SIZES: FontSize[] = ['xsmall', 'small', 'standard', 'large', 'xlarge'
 /** 本机设置，存 localStorage：API Key、语言、主题、位置、朗读音色、深度思考与智能搜索开关、侧边栏收起状态 */
 type Settings = {
   apiKey: string | null
+  /** 对话用的 Claude 模型 */
+  model: ChatModel
   locale: Locale
   themePreference: ThemePreference
   location: UserLocation | null
@@ -30,19 +33,20 @@ type Settings = {
 }
 
 const KEYS = {
-  apiKey: 'chat-demo:api-key',
-  locale: 'chat-demo:locale',
-  location: 'chat-demo:location',
-  themePreference: 'chat-demo:theme-preference',
-  ttsVoice: 'chat-demo:tts-voice',
-  fontSize: 'chat-demo:font-size',
-  soundEffects: 'chat-demo:sound-effects',
-  autoCollapseThinking: 'chat-demo:auto-collapse-thinking',
-  autoCompact: 'chat-demo:auto-compact',
-  autoBackup: 'chat-demo:auto-backup',
-  thinking: 'chat-demo:thinking',
-  search: 'chat-demo:search',
-  siderCollapsed: 'chat-demo:sider-collapsed',
+  apiKey: 'cl-white:api-key',
+  model: 'cl-white:model',
+  locale: 'cl-white:locale',
+  location: 'cl-white:location',
+  themePreference: 'cl-white:theme-preference',
+  ttsVoice: 'cl-white:tts-voice',
+  fontSize: 'cl-white:font-size',
+  soundEffects: 'cl-white:sound-effects',
+  autoCollapseThinking: 'cl-white:auto-collapse-thinking',
+  autoCompact: 'cl-white:auto-compact',
+  autoBackup: 'cl-white:auto-backup',
+  thinking: 'cl-white:thinking',
+  search: 'cl-white:search',
+  siderCollapsed: 'cl-white:sider-collapsed',
 } as const
 
 const read = (key: string) => {
@@ -107,8 +111,15 @@ const initialFontSize = (): FontSize => {
   return FONT_SIZES.includes(saved as FontSize) ? (saved as FontSize) : 'standard'
 }
 
+/** 未选过时默认 Opus 5.5 */
+const initialModel = (): ChatModel => {
+  const saved = read(KEYS.model)
+  return CHAT_MODELS.includes(saved as ChatModel) ? (saved as ChatModel) : 'claude-opus-5-5'
+}
+
 export const useSettings = create<Settings>(() => ({
   apiKey: read(KEYS.apiKey),
+  model: initialModel(),
   locale: initialLocale(),
   location: initialLocation(),
   themePreference: initialThemePreference(),
@@ -120,7 +131,8 @@ export const useSettings = create<Settings>(() => ({
   autoCollapseThinking: read(KEYS.autoCollapseThinking) === 'true',
   autoCompact: read(KEYS.autoCompact) === 'true',
   autoBackup: read(KEYS.autoBackup) === 'true',
-  thinking: read(KEYS.thinking) === 'true',
+  // 显示思考过程：未设置过时默认开（思考本来就会发生，看不看都一样计费）
+  thinking: read(KEYS.thinking) !== 'false',
   search: read(KEYS.search) === 'true',
   siderCollapsed: read(KEYS.siderCollapsed) === 'true',
 }))
@@ -174,6 +186,11 @@ export const setAutoCollapseThinking = (autoCollapseThinking: boolean) => {
 export const setApiKey = (apiKey: string | null) => {
   write(KEYS.apiKey, apiKey)
   useSettings.setState({ apiKey })
+}
+
+export const setModel = (model: ChatModel) => {
+  write(KEYS.model, model)
+  useSettings.setState({ model })
 }
 
 export const setThinking = (thinking: boolean) => {

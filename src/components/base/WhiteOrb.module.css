@@ -25,14 +25,14 @@
     radial-gradient(
         circle at 35% 30%,
         rgba(230, 240, 255, 0.28) 0%,
-        rgba(140, 158, 255, 0.1) 55%,
-        rgba(92, 107, 254, 0.05) 100%
+        rgba(224, 138, 104, 0.1) 55%,
+        rgba(193, 95, 60, 0.05) 100%
       )
       padding-box,
     var(--white-rim) border-box;
   box-shadow:
     0 0 12px var(--white-glow),
-    inset 0 0 6px rgba(189, 216, 253, 0.12);
+    inset 0 0 6px rgba(242, 198, 168, 0.12);
 }
 
 /* 瞳孔：偏向下方，像在看着输入框 */

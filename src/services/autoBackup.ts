@@ -15,9 +15,9 @@ import { useSettings } from './settings.js'
  */
 export const BACKUP_FILE_NAME = 'WHITE-全部对话备份.zip'
 const BACKUP_ID = 'auto'
-const COUNT_KEY = 'chat-demo:auto-backup-count'
+const COUNT_KEY = 'cl-white:auto-backup-count'
 const HANDLE_KEY = 'backup-handle'
-const SAVED_KEY = 'chat-demo:auto-backup-saved'
+const SAVED_KEY = 'cl-white:auto-backup-saved'
 const DEFAULT_EVERY = 10
 
 type PromptKind = 'save' | 'permission' | null

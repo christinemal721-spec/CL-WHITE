@@ -16,10 +16,9 @@ const IconFree = () => (
   </svg>
 )
 
-const KEY = 'chat-demo:intro-ack'
+const KEY = 'cl-white:intro-ack'
 
-/** 第一次使用说明是否已经点过「我已知晓」（新用户为 false） */
-export const acknowledged = () => {
+const acknowledged = () => {
   try {
     return localStorage.getItem(KEY) === '1'
   } catch {
@@ -28,13 +27,13 @@ export const acknowledged = () => {
 }
 
 /** 「【…】」里的字加粗（括号保留） */
-export const emphasize = (text: string): ReactNode[] =>
+const emphasize = (text: string): ReactNode[] =>
   text.split(/(【[^】]*】)/).map((part, index) =>
     part.startsWith('【') ? <strong key={index}>{part}</strong> : part
   )
 
 /** 等开屏动画结束（#white-splash 被移除）再出现，避免压在签名上 */
-export const useSplashDone = () => {
+const useSplashDone = () => {
   const [done, setDone] = useState(() => !document.getElementById('white-splash'))
   useEffect(() => {
     if (done) {
